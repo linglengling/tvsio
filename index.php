@@ -73,12 +73,13 @@ function prefix_add_fields_project( $meta_boxes) {
         'fields'     => [
             [
                 'type' => 'heading',
-                'name' => esc_html__( ' tick vào để bật chức năng spin với tiengvietIO(kiểm tra tài khoản tại menu tieng-viet-spin-api)', 'online-generator' ),
+                'name' => 'tick vào để bật chức năng spin với tiengvietIO(kiểm tra tài khoản tại menu tieng-viet-spin-api)',
             ],
             [
                 'type' => 'checkbox',
-                'name' => esc_html__( 'bật', 'online-generator' ),
-                'id'   => $prefix . 'bat',
+                'name' => 'Bật',
+                'id'   => 'camp_options[]',
+                'value' => '1',
             ],
         ],
     ];
