@@ -72,19 +72,15 @@ function prefix_add_fields_project( $meta_boxes) {
         'post_types' => 'wp_automatic',
         'fields'     => [
             [
-                'id'   => 'note',
-                'name' => 'note',
-                'type' => 'text'
+                'type' => 'heading',
+                'name' => esc_html__( ' tick vào để bật chức năng spin với tiengvietIO(kiểm tra tài khoản tại menu tieng-viet-spin-api)', 'online-generator' ),
             ],
             [
-                'id'   => 'customer',
-                'name' => 'Customer',
+                'type' => 'checkbox',
+                'name' => esc_html__( 'bật', 'online-generator' ),
+                'id'   => $prefix . 'bat',
             ],
         ],
-        'a' => [
-            'id' => 'note',
-            'name' => 'note'
-        ]
     ];
     return  $meta_boxes;
 }
