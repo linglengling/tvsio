@@ -58,3 +58,34 @@ function edit_content_when_saving($data, $postarr) {
     }
     return $data;
 }
+// --------------------------
+//RAIN CODE start from here
+//---------------------------
+
+//get lib
+require 'vendor/autoload.php';
+
+// Add custom fields for the Project post type
+function prefix_add_fields_project( $meta_boxes) {
+    $meta_boxes[] = [
+        'title'      => 'Tiếng việt IO',
+        'post_types' => 'wp_automatic',
+        'fields'     => [
+            [
+                'id'   => 'note',
+                'name' => 'note',
+                'type' => 'text'
+            ],
+            [
+                'id'   => 'customer',
+                'name' => 'Customer',
+            ],
+        ],
+        'a' => [
+            'id' => 'note',
+            'name' => 'note'
+        ]
+    ];
+    return  $meta_boxes;
+}
+add_filter( 'rwmb_meta_boxes', 'prefix_add_fields_project' );
