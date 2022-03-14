@@ -127,12 +127,11 @@ function spin_by_tiengviet_io($output){
 
         $strlen=strlen($content);
                         
-        $first= intval($strlen * 0.5);
-        $second=intval($strlen * 0.5);
+        $half= intval($strlen * 0.5);
 
 
-        $first_part=substr($content,0,$first);             
-        $second_part=substr($content,$first,$second);
+        $first_part=substr($content,0,$half);             
+        $second_part=substr($content,$half,$strlen);
 
         $first_part= tiengvietIO($first_part)   ;    
         $second_part= tiengvietIO($second_part);
