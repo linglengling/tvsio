@@ -136,10 +136,15 @@ function spin_by_tiengviet_io($output){
         $first_part= tiengvietIO($first_part)   ;    
         $second_part= tiengvietIO($second_part);
 
+        $first_part = json_decode($first_part, true);
+        $first_part = $first_part["message"];
+
+        $second_part = json_decode($second_part, true);
+        $second_part = $second_part["message"];
+
         $content =   $first_part . $second_part ;
 
-        $content = json_decode($content, true);
-        $content = $content["message"];
+       
     }
     
    
