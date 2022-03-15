@@ -28,7 +28,7 @@ include_once $tvs_plugin_dir . '/tvs.php';
 //tvs_admin = new TVS();
 
 
-add_filter('wp_insert_post_data', 'edit_content_when_saving', 10, 2);
+//add_filter('wp_insert_post_data', 'edit_content_when_saving', 10, 2);
 
 function edit_content_when_saving($data, $postarr) {
     set_time_limit(0);
