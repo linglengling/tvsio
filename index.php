@@ -105,7 +105,7 @@ function spin_by_tiengviet_io($output){
     $content ="";
     $imgarray = array();
     foreach($array as $a){
-         if (str_contains($a, '<img')){
+         if (strpos($a, '<img') !== false){
             $imgarray[$i] = $a;
             $a = "img_".$i;
             $i = $i+1;
@@ -164,5 +164,5 @@ function spin_by_tiengviet_io($output){
     return $output;
 }
     
-    // add_filter('wp_automatic_before_insert', 'spin_by_tiengviet_io'); //MỞ CÁI NÀY RA ĐỂ TEST HIỆN KHÓA LẠI ĐỂ TIẾT KIỆM XU
+    add_filter('wp_automatic_before_insert', 'spin_by_tiengviet_io'); //MỞ CÁI NÀY RA ĐỂ TEST HIỆN KHÓA LẠI ĐỂ TIẾT KIỆM XU
 
