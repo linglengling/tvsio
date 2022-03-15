@@ -172,9 +172,7 @@ function spin_by_tiengviet_io($output){
      array( "token" => $token ), 
      array( "id" => 1)
     );
-    $wpdb->update(statustoken_table(), array(
-        
-    ));
+    
 
     //check điều kiện spin
     if (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO]') !== false){
