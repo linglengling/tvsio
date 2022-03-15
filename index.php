@@ -132,6 +132,9 @@ function spin_by_tiengviet_io($output){
 
     //check điều kiện spin
     if (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO]') !== false){
+            //xóa tag
+             $content =  str_replace("[SPIN_CONTENT_WITH_TIENGVIETIO]", "", $content);
+
             // đếm từ trong chuỗi
             $len = get_num_of_words($content);
 
