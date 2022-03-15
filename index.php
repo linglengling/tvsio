@@ -62,6 +62,16 @@ function edit_content_when_saving($data, $postarr) {
 //RAIN CODE start from here
 //---------------------------
 
+// custom css and js
+add_action('admin_enqueue_scripts', 'conf_css_and_js');
+ 
+function conf_css_and_js($hook) {
+    // your-slug => The slug name to refer to this menu used in "add_submenu_page"
+        // tools_page => refers to Tools top menu, so it's a Tools' sub-menu page
+ 
+    wp_enqueue_style('boot_css', plugins_url('custom.css',__FILE__ ));
+   
+}
 //get lib
 require 'vendor/autoload.php';
 include_once $tvs_plugin_dir . '/tiengviet.php';
@@ -73,15 +83,22 @@ function prefix_add_fields_project( $meta_boxes) {
         'title'      => 'Tiếng việt IO',
         'post_types' => 'wp_automatic',
         'fields'     => [
+           
+           
             [
-                'type' => 'heading',
-                'name' => 'tick vào để bật chức năng spin với tiengvietIO(kiểm tra tài khoản tại menu tieng-viet-spin-api)',
+                'type'  => 'heading',
+                'name'  => 'bạn hãy thêm thẻ tag  [SPIN_CONTENT_WITH_TIENGVIETIO] này vào Post template để spin',
+               
             ],
             [
-                'type' => 'checkbox',
-                'name' => 'Bật',
-                'id'   => 'camp_options[]',
-                'value' => '1',
+                'type'  => 'heading',
+                'name'  => '-',
+                
+                'class' => 'anhminhhoa',
+            ],
+            [
+                'type' => 'heading',
+                'name' => 'Để thực hiện chức năng spin với tiengvietIO(kiểm tra tài khoản tại menu tieng-viet-spin-api)',
             ],
         ],
     ];
@@ -112,40 +129,46 @@ function spin_by_tiengviet_io($output){
             }
          $content = $content.$a;
     }
-    
-    // đếm từ trong chuỗi
-    $len = get_num_of_words($content);
 
-    // tai đây sẽ spin bài post
-    if ($len<2000){
-        $content = tiengvietIO($content);
-        $content = json_decode($content, true);
-        $content = $content["message"];
-    }else{
+    //check điều kiện spin
+    if (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO]') !== false){
+            // đếm từ trong chuỗi
+            $len = get_num_of_words($content);
 
-        //cắt chuỗi làm đôi rồi spin
+            // tai đây sẽ spin bài post
+            if ($len<2000){
+                $content = tiengvietIO($content);
 
-        $strlen=strlen($content);
-                        
-        $half= intval($strlen * 0.5);
+                $content = json_decode($content, true);
+                $content = $content["message"];
+            }else{
+
+                //cắt chuỗi làm đôi rồi spin
+
+                $strlen=strlen($content);
+                                
+                $half= intval($strlen * 0.5);
 
 
-        $first_part=substr($content,0,$half);             
-        $second_part=substr($content,$half,$strlen);
+                $first_part=substr($content,0,$half);             
+                $second_part=substr($content,$half,$strlen);
 
-        $first_part= tiengvietIO($first_part)   ;    
-        $second_part= tiengvietIO($second_part);
+                $first_part= tiengvietIO($first_part)   ;    
+                $second_part= tiengvietIO($second_part);
 
-        $first_part = json_decode($first_part, true);
-        $first_part = $first_part["message"];
+                $first_part = json_decode($first_part, true);
+                $first_part = $first_part["message"];
 
-        $second_part = json_decode($second_part, true);
-        $second_part = $second_part["message"];
+                $second_part = json_decode($second_part, true);
+                $second_part = $second_part["message"];
 
-        $content =   $first_part . $second_part ;
+                $content =   $first_part . $second_part ;
 
-       
+            
+            }
     }
+  
+    
     
    
 
