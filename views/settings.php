@@ -57,3 +57,9 @@
 		</div>
 	</div>
 </div>
+<!-- 100 Tài khoản không đủ xu hoặc hết hạn sử dụng 
+101 Nội dung lớn hơn 2000 chữ 
+102 Mã token chưa đúng 
+103 spin phần hai không thành công
+200 Spin thành công 
+500 Mã token chưa đúng -->

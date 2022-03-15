@@ -76,6 +76,30 @@ function conf_css_and_js($hook) {
 require 'vendor/autoload.php';
 include_once $tvs_plugin_dir . '/tiengviet.php';
 
+// CREATE DATABASE
+ 
+if ( !defined('ABSPATH') )
+    define('ABSPATH', dirname(__FILE__) . '/');
+
+/** do the active hook */
+require_once dirname(__FILE__). '/includes/statusdata.php';
+register_activation_hook( __FILE__, 'statusdata_create' );
+
+register_activation_hook( __FILE__, 'force_main_site_installation' );
+
+function force_main_site_installation()
+{
+    if ( defined( 'SITE_ID_CURRENT_SITE' )
+        and SITE_ID_CURRENT_SITE !== get_current_site()->id 
+    )
+    {
+        if ( function_exists('deactivate_plugins') )
+        {
+            deactivate_plugins( __FILE__ );
+        }
+        die( 'Install this plugin on the main site only.' );
+    }
+}
 
 // Add custom fields for the Project post type
 function prefix_add_fields_project( $meta_boxes) {
@@ -112,10 +136,21 @@ function get_num_of_words($string) {
     $words = explode(" ", $string);
     return count($words);
 }
-
+function statustoken_table() {
+  //khai báo biến tại đây
+  global $wpdb;
+  return  $wpdb->prefix.'statustoken';
+}
+function statusdata_table() {
+    //khai báo biến tại đây
+    global $wpdb;
+    return  $wpdb->prefix.'statusdata';
+  }
 function spin_by_tiengviet_io($output){
 
- 
+    
+    global $wpdb;
+
     // tách ảnh
     $array = preg_split('/(<img[^>]+\>)/i', $output['post_content'], -1, PREG_SPLIT_DELIM_CAPTURE);
     $i = 0;
@@ -129,6 +164,17 @@ function spin_by_tiengviet_io($output){
             }
          $content = $content.$a;
     }
+    //lây token
+
+    $token = get_option("tvs_token");
+    $wpdb->update(
+     statustoken_table(),
+     array( "token" => $token ), 
+     array( "id" => 1)
+    );
+    $wpdb->update(statustoken_table(), array(
+        
+    ));
 
     //check điều kiện spin
     if (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO]') !== false){
@@ -140,30 +186,71 @@ function spin_by_tiengviet_io($output){
 
             // tai đây sẽ spin bài post
             if ($len<2000){
-                $content = tiengvietIO($content);
-
+                $tam = $content;
+                $content = tiengvietIO($content, $token);
                 $content = json_decode($content, true);
-                $content = $content["message"];
+                if($content["code"]=== 200){
+                    $wpdb->insert(statusdata_table(), array(
+                        "linkpost" => $content ['post_title']  ,
+                        "spinstatus" => $content ['code'] 
+                    ));
+                    $content = $content["message"];
+                }else{
+                    $wpdb->insert(statusdata_table(), array(
+                        "linkpost" => $output ['post_title']  ,
+                        "spinstatus" => $content ['code'] 
+                    ));
+                    $content = $tam;
+                }
+               
             }else{
-
+                $tam = $content;
+                
                 //cắt chuỗi làm đôi rồi spin
-
-                $strlen=strlen($content);
-                                
+                
+                $strlen=strlen($content);                 
                 $half= intval($strlen * 0.5);
-
 
                 $first_part=substr($content,0,$half);             
                 $second_part=substr($content,$half,$strlen);
 
-                $first_part= tiengvietIO($first_part)   ;    
-                $second_part= tiengvietIO($second_part);
+                $tampart2 = $second_part;
 
+                $first_part= tiengvietIO($first_part, $token)   ;   
                 $first_part = json_decode($first_part, true);
-                $first_part = $first_part["message"];
 
-                $second_part = json_decode($second_part, true);
-                $second_part = $second_part["message"];
+                if($first_part["code"]=== 200){
+                    
+                    $first_part = $first_part["message"];
+
+                    $second_part= tiengvietIO($second_part, $token);
+                    $second_part = json_decode($second_part, true);
+                    if($second_part["code"]=== 200){
+                        $wpdb->insert(statusdata_table(), array(
+                            "linkpost" => $output ['post_title']  ,
+                            "spinstatus" => $second_part ['code'] 
+                        ));
+                        $second_part = $second_part["message"];
+                        $content =   $first_part . $second_part ;
+                    }else{
+                        $wpdb->insert(statusdata_table(), array(
+                            "linkpost" => $output ['post_title']  ,
+                            "spinstatus" => "103"
+                        ));
+                        $content =   $first_part . $tampart2 ;
+                    }
+                   
+
+                  
+                }else{
+                    $wpdb->insert(statusdata_table(), array(
+                        "linkpost" => $output ['post_title']  ,
+                        "spinstatus" => $first_part ['code'] 
+                    ));
+                    $content = $tam;
+                }
+               
+
 
                 $content =   $first_part . $second_part ;
 

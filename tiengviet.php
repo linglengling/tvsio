@@ -1,8 +1,8 @@
 <?php
 
-function tiengvietIO($text) {
+function tiengvietIO($text, $token) {
     $url = 'https://api.tiengviet.io/my/spin/';
-    $data = array("token" => "56df1de9cd_dLYaNFAuROeDTENboFdIiiZ6967018","text" => $text);
+    $data = array("token" =>  $token,"text" => $text);
     
     $postdata = json_encode($data);
     
