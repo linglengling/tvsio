@@ -68,9 +68,9 @@ add_action('admin_enqueue_scripts', 'conf_css_and_js');
 function conf_css_and_js($hook) {
     // your-slug => The slug name to refer to this menu used in "add_submenu_page"
         // tools_page => refers to Tools top menu, so it's a Tools' sub-menu page
- 
+    // wp_enqueue_style('dataTables_css', plugins_url('css/jquery.dataTables.min.css',__FILE__ ));
     wp_enqueue_style('boot_css', plugins_url('custom.css',__FILE__ ));
-   
+    // wp_enqueue_script('dataTables_js', plugins_url('js/jquery.dataTables.min.js',__FILE__ ));
 }
 //get lib
 require 'vendor/autoload.php';
@@ -100,7 +100,17 @@ function force_main_site_installation()
         die( 'Install this plugin on the main site only.' );
     }
 }
-
+//make submenu 
+add_action("admin_menu", "tiengviet_io_options_submenu");
+function tiengviet_io_options_submenu() {
+  add_submenu_page(
+        'options-general.php',
+        'Trạng thái spin tiengvietIO',
+        'Trạng thái spin tiengvietIO',
+        'administrator',
+        'spin-options',
+        'spin_status_settings_page' );
+}
 // Add custom fields for the Project post type
 function prefix_add_fields_project( $meta_boxes) {
     $meta_boxes[] = [
@@ -192,12 +202,22 @@ function spin_by_tiengviet_io($output){
                         "linkpost" => $content ['post_title']  ,
                         "spinstatus" => $content ['code'] 
                     ));
+                    $wpdb->update(
+                        statustoken_table(),
+                        array( "coinstatus" => $content ['code']  ), 
+                        array( "id" => 1)
+                       );
                     $content = $content["message"];
                 }else{
                     $wpdb->insert(statusdata_table(), array(
                         "linkpost" => $output ['post_title']  ,
                         "spinstatus" => $content ['code'] 
                     ));
+                    $wpdb->update(
+                        statustoken_table(),
+                        array( "coinstatus" =>  $content ['code']  ), 
+                        array( "id" => 1)
+                       );
                     $content = $tam;
                 }
                
@@ -228,13 +248,23 @@ function spin_by_tiengviet_io($output){
                             "linkpost" => $output ['post_title']  ,
                             "spinstatus" => $second_part ['code'] 
                         ));
+                        $wpdb->update(
+                            statustoken_table(),
+                            array( "coinstatus" =>  $second_part ['code']  ), 
+                            array( "id" => 1)
+                           );
                         $second_part = $second_part["message"];
                         $content =   $first_part . $second_part ;
                     }else{
                         $wpdb->insert(statusdata_table(), array(
                             "linkpost" => $output ['post_title']  ,
-                            "spinstatus" => "103"
+                            "spinstatus" => "part2".$second_part ['code']  
                         ));
+                        $wpdb->update(
+                            statustoken_table(),
+                            array( "coinstatus" =>  $second_part ['code']  ), 
+                            array( "id" => 1)
+                           );
                         $content =   $first_part . $tampart2 ;
                     }
                    
@@ -245,12 +275,17 @@ function spin_by_tiengviet_io($output){
                         "linkpost" => $output ['post_title']  ,
                         "spinstatus" => $first_part ['code'] 
                     ));
+                    $wpdb->update(
+                        statustoken_table(),
+                        array( "coinstatus" =>  $first_part ['code']  ), 
+                        array( "id" => 1)
+                       );
                     $content = $tam;
                 }
                
 
 
-                $content =   $first_part . $second_part ;
+               
 
             
             }
@@ -276,4 +311,9 @@ function spin_by_tiengviet_io($output){
 }
     
     add_filter('wp_automatic_before_insert', 'spin_by_tiengviet_io'); //MỞ CÁI NÀY RA ĐỂ TEST HIỆN KHÓA LẠI ĐỂ TIẾT KIỆM XU
+
+//spin status page
+function spin_status_settings_page(){
+    require_once  "views/spinstatus.php";
+}
 
