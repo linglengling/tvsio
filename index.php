@@ -156,7 +156,7 @@ function split_2000_words_and_the_rest($string){
     $i = 0;
     foreach($words as $a){
         $i++;
-        if($i<=20){
+        if($i<=2000){
             $b = $b.$a;
         }
       
