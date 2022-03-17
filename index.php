@@ -105,7 +105,8 @@ add_action("admin_menu", "tiengviet_io_options_submenu");
 function tiengviet_io_options_submenu() {
   add_submenu_page(
         'options-general.php',
-        'Trạng thái spin tiengvietIO',
+        '
+        ',
         'Trạng thái spin tiengvietIO',
         'administrator',
         'spin-options',
@@ -140,12 +141,36 @@ function prefix_add_fields_project( $meta_boxes) {
 }
 add_filter( 'rwmb_meta_boxes', 'prefix_add_fields_project' );
 
-// Function to count the words
+// đếm số chữ trong đoạn chuỗi
 function get_num_of_words($string) {
     $string = preg_replace('/\s+/', ' ', trim($string));
     $words = explode(" ", $string);
     return count($words);
 }
+// tách chuối thành hai nghàn chữ đầu tiên và phần còn lại
+function split_2000_words_and_the_rest($string){
+    $origin = $string;
+    $string = preg_replace('/\s+/', ' ', trim($string));
+    $words = explode(" ", $string);
+    $b = "";
+    $i = 0;
+    foreach($words as $a){
+        $i++;
+        if($i<=20){
+            $b = $b.$a;
+        }
+      
+   }
+   
+   $mid = strlen($b)+1999;
+   $c = array();
+   $c[0] = substr($origin,0,$mid); 
+  
+   $c[1] =  substr($origin,$mid+1,strlen($origin)-$mid); 
+
+    return $c;
+}
+
 function statustoken_table() {
   //khai báo biến tại đây
   global $wpdb;
@@ -199,7 +224,7 @@ function spin_by_tiengviet_io($output){
                 $content = json_decode($content, true);
                 if($content["code"]=== 200){
                     $wpdb->insert(statusdata_table(), array(
-                        "linkpost" => $content ['post_title']  ,
+                        "linkpost" => $output ['post_title']  ,
                         "spinstatus" => $content ['code'] 
                     ));
                     $wpdb->update(
