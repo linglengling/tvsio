@@ -342,3 +342,28 @@ function spin_status_settings_page(){
     require_once  "views/spinstatus.php";
 }
 
+// lấy thông tin id sau post
+
+function get_info_post( $post_id ) {
+
+    global $wpdb;
+    $table = $wpdb->prefix.'statusdata';
+    $querystr  = "SELECT *  FROM $table";
+    $items = $wpdb->get_results($querystr, OBJECT);
+    $post_title = get_the_title( $post_id );
+    $post_url = get_permalink( $post_id );
+    foreach($items as $item){
+
+        if($post_title === $item->linkpost){
+            $wpdb->update(
+                statusdata_table(),
+                array( "linkpost" =>  $post_id ), 
+                array( "id" => $item->id)
+               );
+        }
+        
+    }
+   
+    
+}
+add_action( 'save_post', 'get_info_post' );

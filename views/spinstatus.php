@@ -24,6 +24,7 @@ $items = $wpdb->get_results($querystr, OBJECT);
 <thead>
     <tr>
         <th>Tiêu đề bài viết</th>
+        <th>Id bài viết</th>
         <th>mã trạng thái</th>
         <th>mô tả trạng thái</th>
         
@@ -32,6 +33,7 @@ $items = $wpdb->get_results($querystr, OBJECT);
 <tbody>
     <?php foreach($items as $item): ?>
     <tr>
+        <td><?php echo get_the_title($item->linkpost);?></td>
         <td><?php echo $item->linkpost;?></td>
         <td><?php echo $item->spinstatus;?></td>
         <td><?php 
