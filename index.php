@@ -122,7 +122,17 @@ function prefix_add_fields_project( $meta_boxes) {
            
             [
                 'type'  => 'heading',
-                'name'  => 'bạn hãy thêm thẻ tag  [SPIN_CONTENT_WITH_TIENGVIETIO] này vào Post template để spin',
+                'name'  => 'bạn hãy thêm thẻ tag [LOẠI TAG] này vào Post template để spin',
+               
+            ],
+            [
+                'type'  => 'heading',
+                'name'  => 'Thẻ loại 1 [SPIN_CONTENT_WITH_TIENGVIETIO] này nếu nhiều hơn 2000 từ sẽ chia đôi và spin hai phần',
+               
+            ],
+            [
+                'type'  => 'heading',
+                'name'  => 'Thẻ loại 2 [SPIN_CONTENT_WITH_TIENGVIETIO_2000] này nếu nhiều hơn 2000 từ sẽ chia đôi và spin phần 2000 chữ đầu',
                
             ],
             [
@@ -315,7 +325,7 @@ function spin_by_tiengviet_io($output){
             
             }
     }
-    if (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO_2000]') !== false){
+    elseif (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO_2000]') !== false){
          //xóa tag
          $content =  str_replace("[SPIN_CONTENT_WITH_TIENGVIETIO_2000]", "", $content);
 
