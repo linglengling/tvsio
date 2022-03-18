@@ -315,7 +315,78 @@ function spin_by_tiengviet_io($output){
             
             }
     }
-  
+    if (strpos($content, '[SPIN_CONTENT_WITH_TIENGVIETIO_2000]') !== false){
+         //xóa tag
+         $content =  str_replace("[SPIN_CONTENT_WITH_TIENGVIETIO_2000]", "", $content);
+
+         // đếm từ trong chuỗi
+         $len = get_num_of_words($content);
+
+         // tai đây sẽ spin bài post
+         if ($len<2000){
+             $tam = $content;
+             $content = tiengvietIO($content, $token);
+             $content = json_decode($content, true);
+             if($content["code"]=== 200){
+                 $wpdb->insert(statusdata_table(), array(
+                     "linkpost" => $output ['post_title']  ,
+                     "spinstatus" => $content ['code'] 
+                 ));
+                 $wpdb->update(
+                     statustoken_table(),
+                     array( "coinstatus" => $content ['code']  ), 
+                     array( "id" => 1)
+                    );
+                 $content = $content["message"];
+             }else{
+                 $wpdb->insert(statusdata_table(), array(
+                     "linkpost" => $output ['post_title']  ,
+                     "spinstatus" => $content ['code'] 
+                 ));
+                 $wpdb->update(
+                     statustoken_table(),
+                     array( "coinstatus" =>  $content ['code']  ), 
+                     array( "id" => 1)
+                    );
+                 $content = $tam;
+             }
+            
+         }else{
+            $tam = $content;
+             
+            //cắt chuỗi làm đôi 2000 từ và phần còn lại rồi spin
+            $generalpart = array();
+            $generalpart = split_2000_words_and_the_rest($content);
+            $first_part = $generalpart[0];            
+            $second_part =  $generalpart[1];
+            $first_part = tiengvietIO($first_part, $token);
+            $first_part = json_decode($first_part, true);
+            if($first_part["code"]=== 200){
+                $wpdb->insert(statusdata_table(), array(
+                    "linkpost" => $output ['post_title']  ,
+                    "spinstatus" => $first_part ['code'] 
+                ));
+                $wpdb->update(
+                    statustoken_table(),
+                    array( "coinstatus" => $first_part ['code']  ), 
+                    array( "id" => 1)
+                   );
+                   $content = $first_part["message"] + $second_part ;
+            }else{
+                $wpdb->insert(statusdata_table(), array(
+                    "linkpost" => $output ['post_title']  ,
+                    "spinstatus" => $first_part ['code'] 
+                ));
+                $wpdb->update(
+                    statustoken_table(),
+                    array( "coinstatus" =>  $first_part ['code']  ), 
+                    array( "id" => 1)
+                   );
+                $content = $tam;
+            }
+               
+         }
+    }
     
     
    
@@ -344,11 +415,20 @@ function spin_status_settings_page(){
 
 // lấy thông tin id sau post
 
-function get_info_post( $post_id ) {
+function get_info_post( $post_id) {
 
+    // Only set for post_type = post!
+    if ( 'post' !== get_post_type($post_id) ) {
+        return;
+    }
+    // If this is just a revision then do no thing
+    if ( wp_is_post_revision( $post_id ) ) {
+        return;
+        }
+    
     global $wpdb;
     $table = $wpdb->prefix.'statusdata';
-    $querystr  = "SELECT *  FROM $table";
+    $querystr  = "SELECT *  FROM $table WHERE linkpost REGEXP '.*[^0-9].*'";
     $items = $wpdb->get_results($querystr, OBJECT);
     $post_title = get_the_title( $post_id );
     $post_url = get_permalink( $post_id );
@@ -363,6 +443,7 @@ function get_info_post( $post_id ) {
         }
         
     }
+    
    
     
 }
