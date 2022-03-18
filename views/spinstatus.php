@@ -2,25 +2,104 @@
     Thông tin trạng thái spin
 </h2>
 
+<?php
+global  $wpdb;
+$table = $wpdb->prefix.'statusdata';
+$querystr  = "SELECT *  FROM $table";
+$totals = $wpdb->get_results($querystr, OBJECT);
+
+$all = count($totals);
+$ok = 0; 
+$er = 0;
+foreach ($totals as $total){
+  if ($total->spinstatus == 200){
+    $ok ++;
+  }
+  if ($total->spinstatus != 200){
+    $er ++;
+  }
+}
+?>
+
+<p><a href="options-general.php?page=spin-options" id="all" >Tất cả(<?php echo $all; ?>)</a> 
+| <a href="options-general.php?page=spin-options&filter=hoanthanh" id="ok" >spin thành công(<?php echo $ok; ?>)</a>
+| <a href="options-general.php?page=spin-options&filter=loi" id="er"  >spin lỗi(<?php echo $er; ?>)</a>
+</p>
 
 <?php
+error_reporting(E_ERROR | E_PARSE);
 
-    global  $wpdb;
-    $table = $wpdb->prefix.'statusdata';
-    $querystr  = "
-    SELECT *  
-    FROM $table
-    
- ";
-
-$items = $wpdb->get_results($querystr, OBJECT);
+if($_GET['filter'] == "hoanthanh"):
+  global  $wpdb;
+  $table = $wpdb->prefix.'statusdata';
+  $querystr  = "SELECT *  FROM $table WHERE spinstatus = 200";
+  $items = $wpdb->get_results($querystr, OBJECT);
 ?>
+<style>
+p #ok {
+  color: red;
+}
+</style>
+<?php
+
+elseif($_GET['filter'] == "loi"):
+  global  $wpdb;
+  $table = $wpdb->prefix.'statusdata';
+  $querystr  = "SELECT *  FROM $table WHERE spinstatus != 200";
+  $items = $wpdb->get_results($querystr, OBJECT);
+?>
+<style>
+p #er {
+  color: red;
+}
+</style>
+<?php
+
+else:
+  global  $wpdb;
+  $table = $wpdb->prefix.'statusdata';
+  $querystr  = "SELECT *  FROM $table";
+  $items = $wpdb->get_results($querystr, OBJECT);
+?>
+<style>
+p #all {
+  color: red;
+}
+</style>
+<?php endif;?>
 <br>
 <style>
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
 
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.5/af-2.3.7/datatables.min.css"/>
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #555;
+  color: white;
+}
+p a{
+  text-decoration: none; 
+}
 </style>
-<table id="dtBasicExample" class="display" cellspacing="0" width="100%" >
+
+
+
+
+<table id="customers" width="100%" >
 <thead>
     <tr>
         <th>Tiêu đề bài viết</th>
@@ -68,15 +147,13 @@ $items = $wpdb->get_results($querystr, OBJECT);
     </tbody>
 </table>
 
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.5/af-2.3.7/datatables.min.js"></script>
 
 <script>
-    $('#dtBasicExample').DataTable();
-  $('.dataTables_length').addClass('bs-select');
+$(document).ready(function(){
+  $("a").click(function(){
+  $("#menu").toggleClass("active");
+  });
+});
 </script>
-<!-- 100 Tài khoản không đủ xu hoặc hết hạn sử dụng 
-101 Nội dung lớn hơn 2000 chữ 
-102 Mã token chưa đúng 
-103 spin phần hai không thành công
-200 Spin thành công 
-500 Mã token chưa đúng -->
+
+
