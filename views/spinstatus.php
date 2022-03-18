@@ -19,6 +19,7 @@ foreach ($totals as $total){
     $er ++;
   }
 }
+
 ?>
 
 <p><a href="options-general.php?page=spin-options" id="all" >Tất cả(<?php echo $all; ?>)</a> 
@@ -34,6 +35,7 @@ if($_GET['filter'] == "hoanthanh"):
   $table = $wpdb->prefix.'statusdata';
   $querystr  = "SELECT *  FROM $table WHERE spinstatus = 200";
   $items = $wpdb->get_results($querystr, OBJECT);
+  $link = "options-general.php?page=spin-options&filter=hoanthanh";
 ?>
 <style>
 p #ok {
@@ -47,6 +49,7 @@ elseif($_GET['filter'] == "loi"):
   $table = $wpdb->prefix.'statusdata';
   $querystr  = "SELECT *  FROM $table WHERE spinstatus != 200";
   $items = $wpdb->get_results($querystr, OBJECT);
+  $link = "options-general.php?page=spin-options&filter=loi";
 ?>
 <style>
 p #er {
@@ -60,6 +63,7 @@ else:
   $table = $wpdb->prefix.'statusdata';
   $querystr  = "SELECT *  FROM $table";
   $items = $wpdb->get_results($querystr, OBJECT);
+  $link = "options-general.php?page=spin-options";
 ?>
 <style>
 p #all {
@@ -67,8 +71,52 @@ p #all {
 }
 </style>
 <?php endif;?>
+
 <br>
+
+<?php
+$page = isset ( $_REQUEST ['trang'] ) ? $_REQUEST ['trang'] : 1;
+
+$limit = 10;
+
+$numRows = count($items);
+
+$total_page = ceil($numRows / $limit);
+
+$start = ($page - 1) * $limit;
+
+$data = getdataWithLimit($start,$limit);
+
+$items = $data;
+
+function getdataWithLimit($start,$limit){
+  if($_GET['filter'] == "hoanthanh"){
+    global  $wpdb;
+    $table = $wpdb->prefix.'statusdata';
+    $querystr  = "SELECT *  FROM $table WHERE spinstatus = 200 LIMIT $start, $limit";
+    $data = $wpdb->get_results($querystr, OBJECT);
+  }elseif($_GET['filter'] == "loi"){
+    global  $wpdb;
+    $table = $wpdb->prefix.'statusdata';
+    $querystr  = "SELECT *  FROM $table WHERE spinstatus != 200 LIMIT $start, $limit";
+    $data = $wpdb->get_results($querystr, OBJECT);
+  }else{
+    global  $wpdb;
+    $table = $wpdb->prefix.'statusdata';
+    $querystr  = "SELECT *  FROM $table LIMIT $start, $limit";
+    $data = $wpdb->get_results($querystr, OBJECT);
+  }
+  return $data;
+}
+?>
 <style>
+  .pagination a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
 #customers {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
@@ -97,6 +145,10 @@ p a{
 </style>
 
 
+ <!-- Bootstrap CDN -->
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 
 <table id="customers" width="100%" >
@@ -143,17 +195,33 @@ p a{
         ?></td>
         
     </tr>
+
     <?php endforeach;?>
+   
     </tbody>
+    
 </table>
 
 
-<script>
-$(document).ready(function(){
-  $("a").click(function(){
-  $("#menu").toggleClass("active");
-  });
-});
-</script>
+<table>  
+    <tr>
+   
+   <ul class="pagination">
+   <li><a><?php echo $total_page ;?> trang</a></li>
 
+   <li><a href="<?php echo "$link&trang=1" ;?>"><<</a></li>
+   <li class="<?php if($page <= 1){ echo 'disabled'; } ?>">
+       <a href="<?php if($page <= 1){ echo '#'; } else { echo "$link&trang=".($page - 1); } ?>"><</a>
+   </li>
 
+   <li><a><?php echo $page ;?> trên <?php echo $total_page ;?> </a></li>
+
+   <li class="<?php if($page >= $total_page){ echo 'disabled'; } ?>">
+       <a href="<?php if($page >= $total_page){ echo '#'; } else { echo "$link&trang=".($page + 1); } ?>">></a>
+   </li>
+   <li><a href="<?php echo "$link&trang=$total_page ";?>">>></a></li>
+
+  </ul>
+  </tr>
+  
+  </table>
