@@ -1,8 +1,13 @@
 <h2>
     Thông tin trạng thái spin
 </h2>
+<!-- Bootstrap CDN -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 <?php
+//lấy tổng số để thống kê
 global  $wpdb;
 $table = $wpdb->prefix.'statusdata';
 $querystr  = "SELECT *  FROM $table";
@@ -21,12 +26,12 @@ foreach ($totals as $total){
 }
 
 ?>
-
+<!-- Menu -->
 <p><a href="options-general.php?page=spin-options" id="all" >Tất cả(<?php echo $all; ?>)</a> 
 | <a href="options-general.php?page=spin-options&filter=hoanthanh" id="ok" >spin thành công(<?php echo $ok; ?>)</a>
 | <a href="options-general.php?page=spin-options&filter=loi" id="er"  >spin lỗi(<?php echo $er; ?>)</a>
 </p>
-
+<!-- Lấy dữ liệu theo filter -->
 <?php
 error_reporting(E_ERROR | E_PARSE);
 
@@ -70,11 +75,13 @@ p #all {
   color: red;
 }
 </style>
+
 <?php endif;?>
 
 <br>
-
+<!-- Chức năng phân trang bằng PHP -->
 <?php
+
 $page = isset ( $_REQUEST ['trang'] ) ? $_REQUEST ['trang'] : 1;
 
 $limit = 10;
@@ -109,47 +116,9 @@ function getdataWithLimit($start,$limit){
   return $data;
 }
 ?>
-<style>
-  .pagination a.active {
-  background-color: #4CAF50;
-  color: white;
-}
 
-.pagination a:hover:not(.active) {background-color: #ddd;}
-
-#customers {
-  font-family: Arial, Helvetica, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-#customers td, #customers th {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-#customers tr:nth-child(even){background-color: #f2f2f2;}
-
-#customers tr:hover {background-color: #ddd;}
-
-#customers th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #555;
-  color: white;
-}
-p a{
-  text-decoration: none; 
-}
-</style>
-
-
- <!-- Bootstrap CDN -->
- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+ 
+<!-- Html bảng trạng thái spin -->
 
 <table id="customers" width="100%" >
 <thead>
@@ -158,14 +127,14 @@ p a{
         <th>Id bài viết</th>
         <th>mã trạng thái</th>
         <th>mô tả trạng thái</th>
-        
+        <?php if($_GET['filter'] == "loi"): ?><th>spin lại</th><?php endif; ?>
     </tr>
 </thead>
 <tbody>
     <?php foreach($items as $item): ?>
     <tr>
-        <td><?php echo get_the_title($item->linkpost);?></td>
-        <td><?php echo $item->linkpost;?></td>
+        <td><?php echo get_the_title($item->post_id);?></td>
+        <td><?php echo $item->post_id;?></td>
         <td><?php echo $item->spinstatus;?></td>
         <td><?php 
         switch ($item->spinstatus) {
@@ -179,7 +148,7 @@ p a{
                 echo "Mã token chưa đúng ";
               break;
             case 103:
-                echo "spin phần sau 2000 chữ không thành công ";
+                echo "spin phần 1 thành công phần 2 không thành công ";
               break;
             case 200:
                 echo "Spin thành công ";
@@ -193,7 +162,9 @@ p a{
           }
         
         ?></td>
-        
+          <?php if($_GET['filter'] == "loi"): ?>
+         <td><a href="javascript:void(0)" data-id="<?php echo  $item->post_id; ?>" class="btn btn-default spinpost">chạy spin</a></td>
+         <?php endif; ?>
     </tr>
 
     <?php endforeach;?>
@@ -201,8 +172,7 @@ p a{
     </tbody>
     
 </table>
-
-
+<!-- Html link phân trang -->
 <table>  
     <tr>
    
@@ -225,3 +195,5 @@ p a{
   </tr>
   
   </table>
+
+

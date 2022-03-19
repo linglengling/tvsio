@@ -66,11 +66,9 @@ function edit_content_when_saving($data, $postarr) {
 add_action('admin_enqueue_scripts', 'conf_css_and_js');
  
 function conf_css_and_js($hook) {
-    // your-slug => The slug name to refer to this menu used in "add_submenu_page"
-        // tools_page => refers to Tools top menu, so it's a Tools' sub-menu page
-    // wp_enqueue_style('dataTables_css', plugins_url('css/jquery.dataTables.min.css',__FILE__ ));
+   
     wp_enqueue_style('boot_css', plugins_url('custom.css',__FILE__ ));
-    // wp_enqueue_script('dataTables_js', plugins_url('js/jquery.dataTables.min.js',__FILE__ ));
+    wp_enqueue_script('custom_js', plugins_url('custom.js',__FILE__ ));
 }
 //get lib
 require 'vendor/autoload.php';
@@ -293,7 +291,7 @@ function spin_by_tiengviet_io($output){
                     }else{
                         $wpdb->insert(statusdata_table(), array(
                             "linkpost" => $output ['post_title']  ,
-                            "spinstatus" => "part2".$second_part ['code']  
+                            "spinstatus" => 103 
                         ));
                         $wpdb->update(
                             statustoken_table(),
@@ -438,16 +436,18 @@ function get_info_post( $post_id) {
     
     global $wpdb;
     $table = $wpdb->prefix.'statusdata';
-    $querystr  = "SELECT *  FROM $table WHERE linkpost REGEXP '.*[^0-9].*'";
+    $querystr  = "SELECT *  FROM $table WHERE post_id  = 0";
     $items = $wpdb->get_results($querystr, OBJECT);
     $post_title = get_the_title( $post_id );
     $post_url = get_permalink( $post_id );
+    $id =  $post_id;
     foreach($items as $item){
 
         if($post_title === $item->linkpost){
+            
             $wpdb->update(
                 statusdata_table(),
-                array( "linkpost" =>  $post_id ), 
+                array( "post_id" =>  $id ), 
                 array( "id" => $item->id)
                );
         }
@@ -458,3 +458,107 @@ function get_info_post( $post_id) {
     
 }
 add_action( 'save_post', 'get_info_post' );
+
+// chức năng spin lại bài viết bị lỗi spin
+
+add_action("wp_ajax_respin", "respin");
+add_action("wp_ajax_nopriv_respin", "respin");
+
+function respin()
+{
+    global $wpdb;
+   
+    //lấy content
+    $content_post = get_post($_REQUEST["id"]);
+    $content = $content_post->post_content;
+
+    // tách ảnh
+    $array = preg_split('/(<img[^>]+\>)/i', $content , -1, PREG_SPLIT_DELIM_CAPTURE);
+    $i = 0;
+    $content ="";
+    $imgarray = array();
+    foreach($array as $a){
+         if (strpos($a, '<img') !== false){
+            $imgarray[$i] = $a;
+            $a = "img_".$i;
+            $i = $i+1;
+            }
+         $content = $content.$a;
+    }
+    //lây token
+
+    $token = get_option("tvs_token");
+    
+    // đếm từ trong chuỗi
+    $len = get_num_of_words($content);
+
+    // tai đây sẽ spin bài post
+    if ($len<2000){
+        $tam = $content;
+        $content = tiengvietIO($content, $token);
+        $content = json_decode($content, true);
+        if($content["code"]=== 200){
+            $wpdb->update(
+                statusdata_table(),
+                array( "spinstatus" => $content ['code']  ), 
+                array( "post_id" => $_REQUEST["id"])
+               );
+            $content = $content["message"];
+        }else{
+            $wpdb->update(
+                statusdata_table(),
+                array( "spinstatus" => $content ['code']  ), 
+                array( "post_id" => $_REQUEST["id"])
+               );
+            $content = $tam;
+        }
+       
+    }else{
+       $tam = $content;
+        
+       //cắt chuỗi làm đôi 2000 từ và phần còn lại rồi spin
+       $generalpart = array();
+       $generalpart = split_2000_words_and_the_rest($content);
+       $first_part = $generalpart[0];            
+       $second_part =  $generalpart[1];
+       $first_part = tiengvietIO($first_part, $token);
+       $first_part = json_decode($first_part, true);
+       if($first_part["code"]=== 200){
+        $wpdb->update(
+            statusdata_table(),
+            array( "spinstatus" => $first_part ['code']  ), 
+            array( "post_id" => $_REQUEST["id"])
+           );
+              $content = $first_part["message"] + $second_part ;
+       }else{
+        $wpdb->update(
+            statusdata_table(),
+            array( "spinstatus" => $first_part ['code']  ), 
+            array( "post_id" => $_REQUEST["id"])
+           );
+           $content = $tam;
+       }
+          
+    }
+    //ghép ảnh vào lại vị trí cũ (duyệt mảng ngược để img_10 sẽ thay trước sau đó img_1 thay sau tránh tình trạng thay nhầm img_1 vào cả hai)
+    $j=count($imgarray)-1;
+    $imgarray = array_reverse($imgarray);//đảo ngược thứ tự mảng
+    foreach($imgarray as $b){
+
+            $content =  str_replace("img_".$j, $b, $content);
+            $j=$j-1;
+
+    }
+
+    //  Cập nhật lại nội dung bài viết
+    $my_post = array(
+        'ID'           => $_REQUEST["id"],
+        'post_content' => $content,
+    );
+    wp_update_post( $my_post );
+
+    // trả API về cho ajax
+    echo json_encode(array("status"=>1, "message"=>"respin ok"));
+
+  
+}

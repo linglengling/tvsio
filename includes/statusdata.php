@@ -12,6 +12,7 @@ function statusdata_create()
     $DB_query = "CREATE TABLE $DB_tb_name(
         id int(110) NOT NULL AUTO_INCREMENT,
         linkpost varchar(255) DEFAULT '',
+        post_id int(110) DEFAULT 0,
         spinstatus varchar(255) DEFAULT '',
         
         PRIMARY KEY (id)
@@ -32,3 +33,4 @@ function statusdata_create()
     dbDelta($DB_query1);
     dbDelta($DB_query2);
 }
+//a9c8c0f334_cGaMJoGDiawtgdiKFLNeii8u644525
