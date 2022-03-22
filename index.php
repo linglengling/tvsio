@@ -529,7 +529,7 @@ function respin()
             array( "spinstatus" => $first_part ['code']  ), 
             array( "post_id" => $_REQUEST["id"])
            );
-              $content = $first_part["message"] + $second_part ;
+              $content = $first_part["message"] . $second_part ;
        }else{
         $wpdb->update(
             statusdata_table(),
