@@ -191,7 +191,7 @@ function statusdata_table() {
   }
 function spin_by_tiengviet_io($output){
 
-    
+    // echo $output['post_content'];
     global $wpdb;
 
     // tách ảnh
@@ -379,7 +379,7 @@ function spin_by_tiengviet_io($output){
                     array( "coinstatus" => $first_part ['code']  ), 
                     array( "id" => 1)
                    );
-                   $content = $first_part["message"] + $second_part ;
+                   $content = $first_part["message"] . $second_part ;
             }else{
                 $wpdb->insert(statusdata_table(), array(
                     "linkpost" => $output ['post_title']  ,
