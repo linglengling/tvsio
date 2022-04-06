@@ -669,12 +669,18 @@ function auto_link($content, $title){
                 }
              
             }
-            //lấy link ngẫu nhiên 
-            $url_rand = getRandomLink($key, $title);  
+             
              //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
              if ($k== ceil($total/3)){
+                 //lấy link ngẫu nhiên 
+                 $url_rand = getRandomLink($key, $title); 
                  $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
              }
+             if ($k== ( $total - ceil($total/3))){
+                //lấy link ngẫu nhiên 
+                $url_rand = getRandomLink($key, $title); 
+                $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem nhiều hơn tại đây</b></a>';
+            }
             $content = $content. $temp;
             $k++;
 
