@@ -1,9 +1,10 @@
 <?php
 
 /*
-  Plugin Name: tieng viet spin API
+  Plugin Name: SEO tool PHP team
   Version: 0.1
-  Author: Space-Themes.com
+  Author: TP & The Rain
+  Description: the auto post, auto link, auto spin for SEO task
   License: GNU General Public License v3 or later
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
   Text Domain: tvs
@@ -63,12 +64,12 @@ function edit_content_when_saving($data, $postarr) {
 //---------------------------
 
 // custom css and js
-add_action('admin_enqueue_scripts', 'conf_css_and_js');
+add_action('admin_enqueue_scripts', 'aaconf_css_and_js');
  
-function conf_css_and_js($hook) {
+function aaconf_css_and_js($hook) {
    
-    wp_enqueue_style('boot_css', plugins_url('custom.css',__FILE__ ));
-    wp_enqueue_script('custom_js', plugins_url('custom.js',__FILE__ ));
+    wp_enqueue_style('bo_css', plugins_url('custom.css',__FILE__ ));
+    wp_enqueue_script('custo_js', plugins_url('custom.js',__FILE__ ));
 }
 //get lib
 require 'vendor/autoload.php';
@@ -83,9 +84,9 @@ if ( !defined('ABSPATH') )
 require_once dirname(__FILE__). '/includes/statusdata.php';
 register_activation_hook( __FILE__, 'statusdata_create' );
 
-register_activation_hook( __FILE__, 'force_main_site_installation' );
+register_activation_hook( __FILE__, 'aaforce_main_site_installation' );
 
-function force_main_site_installation()
+function aaforce_main_site_installation()
 {
     if ( defined( 'SITE_ID_CURRENT_SITE' )
         and SITE_ID_CURRENT_SITE !== get_current_site()->id 
@@ -189,6 +190,11 @@ function statusdata_table() {
     global $wpdb;
     return  $wpdb->prefix.'statusdata';
   }
+  //khai báo table chứa thông tin thống kê
+function Statistics_table() {
+    global $wpdb;
+    return $wpdb->prefix.'statistics';
+}
 function spin_by_tiengviet_io($output){
 
     // echo $output['post_content'];
@@ -409,8 +415,10 @@ function spin_by_tiengviet_io($output){
 
     }
 
+    //thực hiện autolink
+    $content = auto_link($content , $output['post_title']);
+
     $output['post_content'] =  $content ;
-   
     return $output;
 }
     
@@ -438,9 +446,10 @@ function get_info_post( $post_id) {
     $table = $wpdb->prefix.'statusdata';
     $querystr  = "SELECT *  FROM $table WHERE post_id  = 0";
     $items = $wpdb->get_results($querystr, OBJECT);
+
     $post_title = get_the_title( $post_id );
-    $post_url = get_permalink( $post_id );
     $id =  $post_id;
+    //cập nhật bảng trang thái spin
     foreach($items as $item){
 
         if($post_title === $item->linkpost){
@@ -452,12 +461,10 @@ function get_info_post( $post_id) {
                );
         }
         
-    }
-    
-   
-    
+    }  
 }
 add_action( 'save_post', 'get_info_post' );
+
 
 // chức năng spin lại bài viết bị lỗi spin
 
@@ -562,3 +569,149 @@ function respin()
 
   
 }
+/////////////////////////////////////////////////////////////////
+//// Code cho chức năng auto link bắt đầu từ chỗ này/////////////
+/////////////////////////////////////////////////////////////////
+
+//tạo menu phụ cho bảng thống kê auto link
+add_action("admin_menu", "auto_link_options_submenu");
+function auto_link_options_submenu() {
+  add_submenu_page(
+        'options-general.php',
+        '
+        ',
+        'Thống kê auto-link',
+        'administrator',
+        'AL-options',
+        'Auto_Link_settings_page' );
+}
+function Auto_Link_settings_page(){
+    require_once  "views/ALstatistics.php";
+}
+
+// bắt đầu các chức năng từ chỗ này
+
+function auto_link($content, $title){
+
+//check nếu có thẻ auto link thì làm
+    if (strpos($content, "[AUTO_BUILD_INTERNAL_LINK]") !== false){
+
+       
+     //xóa tag
+          $content =  str_replace("[AUTO_BUILD_INTERNAL_LINK]", "", $content);
+           
+        //cắt content ra thành nhiều đoạn
+        preg_match_all('/<([^\s>]+)(.*?)>((.*?)<\/\1>)?|(?<=^|>)(.+?)(?=$|<)/i',$content,$temps);
+            $temps = $temps[0];
+            // var_dump($temps);
+            //      die();
+        $content = "";
+        
+        foreach($temps as $temp){
+            //nếu đoạn có thẻ a 
+            if (strpos($temp, '<a') !== false){
+                 //remove hết thẻ strong đi sau đó mới dùng getKeywordInAtags() được
+            $temp=  str_replace('<strong>', '', $temp);
+            $temp=  str_replace('</strong>', '', $temp);
+            $temp=  str_replace('<b>', '', $temp);
+            $temp=  str_replace('</b>', '', $temp);
+                //lấy khóa ra khỏi thẻ a
+               $key = getKeywordInAtags($temp);
+      
+               
+               if ($key){
+               
+               
+                    //lấy link ngẫu nhiên bằng khóa 
+                    $url_income = getLink($key, $title);
+                    echo "##########".$url_income;
+                    //xóa link thẻ a cũ,
+                    $temp = preg_replace('/<a[^>]*>([\s\S]*?)<\/a>/i','\1', $temp);
+                    // thay thẻ a cũ băng link của web mình ->chức năng 2.1
+                    $temp =str_replace( $key, '<a href="'.$url_income.'"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
+                    
+                }
+             
+            }
+           
+             //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
+            $content = $content. $temp;
+
+        }
+            
+    }
+return $content;
+}
+
+// lấy khóa ra khỏi thẻ a
+function getKeywordInAtags($string) {
+    $pattern = "/<a?.*>(.*)<\/a>/";
+    preg_match($pattern, $string, $matches);
+    return $matches[1];
+}
+
+//lấy link ngẫu nhiên bằng khóa 
+function getLink($key, $title){
+
+    global  $wpdb ;
+   
+    $tablePost = $wpdb->prefix.'posts';
+    $querystr  = "SELECT *  FROM $tablePost WHERE post_content LIKE '%$key%' ORDER BY RAND() LIMIT 1";
+    $alls = $wpdb->get_results($querystr, OBJECT);
+   // nếu khóa có income post thì trả về đường dẫn của income post
+    if($alls){
+        foreach($alls as $item):
+            $all = $item; 
+        endforeach;
+        
+        $idfrom = $all->ID;
+        $wpdb->insert(Statistics_table(), array(
+            "link_from" => $idfrom  ,
+            "title_to" => $title,
+            "anchor" => $key
+        ));
+
+        $url_income = $all->guid;
+         return $url_income;
+    }
+    //nếu khóa không có income post thì trả vê trang chủ
+    $url_income = bloginfo('url');
+    return $url_income;
+
+}
+
+// cập nhật id cho outcome post trong bảng thống kê autolink
+function get_info_post_autolink( $post_id) {
+
+    // Only set for post_type = post!
+    if ( 'post' !== get_post_type($post_id) ) {
+        return;
+    }
+    // If this is just a revision then do no thing
+    if ( wp_is_post_revision( $post_id ) ) {
+        return;
+        }
+    
+    global $wpdb;
+    $table = $wpdb->prefix.'statistics';
+    $querystr  = "SELECT *  FROM $table WHERE link_to  = 0";
+    $items = $wpdb->get_results($querystr, OBJECT);
+
+    $post_title = get_the_title( $post_id );
+    $id =  $post_id;
+   
+    //cập nhật bảng thống kê auto link
+    foreach($items as $item){
+
+        if($post_title === $item->title_to){
+            
+            $wpdb->update(
+                Statistics_table(),
+                array( "link_to" => $id ), 
+                array( "id" => $item->id)
+               );
+        }
+        
+    }
+}
+add_action( 'save_post', 'get_info_post_autolink' );
