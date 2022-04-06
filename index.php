@@ -150,6 +150,24 @@ function prefix_add_fields_project( $meta_boxes) {
 }
 add_filter( 'rwmb_meta_boxes', 'prefix_add_fields_project' );
 
+// Add custom fields for the Project post type
+function prefix_add_fields_autolink( $meta_boxes) {
+    $meta_boxes[] = [
+        'title'      => 'Hướng dẫn auto link',
+        'post_types' => 'wp_automatic',
+        'fields'     => [
+           
+           
+            [
+                'type'  => 'heading',
+                'name'  => 'bạn hãy thêm thẻ tag [AUTO_BUILD_INTERNAL_LINK] này vào Post template để tự động đi link tương tự Spin AI',
+               
+            ],
+        ],
+    ];
+    return  $meta_boxes;
+}
+add_filter( 'rwmb_meta_boxes', 'prefix_add_fields_autolink' );
 // đếm số chữ trong đoạn chuỗi
 function get_num_of_words($string) {
     $string = preg_replace('/\s+/', ' ', trim($string));
@@ -606,10 +624,14 @@ function auto_link($content, $title){
             // var_dump($temps);
             //      die();
         $content = "";
-        
+        $k = 0;
+        $total = count($temps);
         foreach($temps as $temp){
+            
+           
             //nếu đoạn có thẻ a 
             if (strpos($temp, '<a') !== false){
+                
                  //remove hết thẻ strong đi sau đó mới dùng getKeywordInAtags() được
             $temp=  str_replace('<strong>', '', $temp);
             $temp=  str_replace('</strong>', '', $temp);
@@ -619,23 +641,42 @@ function auto_link($content, $title){
                $key = getKeywordInAtags($temp);
       
                
-               if ($key){
+               if ($key != "" && $key != NULL){
                
                
                     //lấy link ngẫu nhiên bằng khóa 
                     $url_income = getLink($key, $title);
-                    echo "##########".$url_income;
-                    //xóa link thẻ a cũ,
+                    echo "<hr>";
+                    echo $url_income;
+                    echo "<hr>";
+                    //xóa link thẻ a cũ
                     $temp = preg_replace('/<a[^>]*>([\s\S]*?)<\/a>/i','\1', $temp);
-                    // thay thẻ a cũ băng link của web mình ->chức năng 2.1
-                    $temp =str_replace( $key, '<a href="'.$url_income.'"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
-                    
+                    $mainsite = bloginfo('url');
+                    if ($url_income == "NA" || $url_income == $mainsite){
+                        // thay thẻ a cũ băng link của web mình ->chức năng 2.1
+                        $temp =str_replace( $key, '<a href="http://k188.bet"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
+
+                    }else{
+                      
+                        // thay thẻ a cũ băng link của web mình ->chức năng 2.1
+                        $temp =str_replace( $key, '<a href="'.$url_income.'"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
+                        
+                    }
+
+                }else{
+                     //nếu có baner quảng cáo của web gốc chứa link xóa luôn 
+                     $temp = preg_replace('/<a[^>]*>/i','<a>', $temp);
                 }
              
             }
-           
+            //lấy link ngẫu nhiên 
+            $url_rand = getRandomLink($key, $title);  
              //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
+             if ($k== ceil($total/3)){
+                 $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
+             }
             $content = $content. $temp;
+            $k++;
 
         }
             
@@ -675,8 +716,33 @@ function getLink($key, $title){
          return $url_income;
     }
     //nếu khóa không có income post thì trả vê trang chủ
-    $url_income = bloginfo('url');
+    $url_income = "NA";
     return $url_income;
+
+}
+//lấy link ngẫu nhiên
+function getRandomLink($key, $title){
+
+    global  $wpdb ;
+   
+    $tablePost = $wpdb->prefix.'posts';
+    $querystr  = "SELECT *  FROM $tablePost  WHERE post_status = 'publish' AND post_type = 'post' ORDER BY RAND() LIMIT 1";
+    $alls = $wpdb->get_results($querystr, OBJECT);
+   
+        foreach($alls as $item):
+            $all = $item; 
+        endforeach;
+        
+        $idfrom = $all->ID;
+        $wpdb->insert(Statistics_table(), array(
+            "link_from" => $idfrom  ,
+            "title_to" => $title,
+            "anchor" => $key
+        ));
+
+        $url_income = $all->guid;
+         return $url_income;
+    
 
 }
 
