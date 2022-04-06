@@ -1,0 +1,39 @@
+.anhminhhoa{
+    background: url(http://internationalsamuel.com/wp-content/uploads/2022/03/2022-03-18_200256.png);
+    background-repeat: no-repeat;
+    height: 300px;
+    width: 600px;
+    background-size: 100%;
+}
+.pagination a.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .pagination a:hover:not(.active) {background-color: #ddd;}
+  
+  #customers {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #customers td, #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #customers tr:nth-child(even){background-color: #f2f2f2;}
+  
+  #customers tr:hover {background-color: #ddd;}
+  
+  #customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #555;
+    color: white;
+  }
+  p a{
+    text-decoration: none; 
+  }
