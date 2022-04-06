@@ -36,7 +36,7 @@ error_reporting(E_ERROR | E_PARSE);
 
     //Trả kết quả 
    $idlists = $idlist3s;
-
+   $link = "options-general.php?page=AL-options";
 ?>
 <!-- Chức năng phân trang bằng PHP -->
 <?php
@@ -74,6 +74,7 @@ function getdataWithLimit($start, $idlists){
         }
         // var_dump($mot);
   return $mot;
+ 
 }
 ?>
 
@@ -94,7 +95,8 @@ function getdataWithLimit($start, $idlists){
     </tr>
 </thead>
 <tbody>
-    <?php foreach($data as $item): ?>
+    <?php foreach($data as $item): if( $item != 0):?>
+
     <tr>
         <td><?php echo get_the_title($item);?></td>
         <td><?php echo getIncomingLinksCount($item);?></td>
@@ -103,7 +105,7 @@ function getdataWithLimit($start, $idlists){
          
     </tr>
 
-    <?php endforeach;?>
+    <?php endif; endforeach;?>
    
     </tbody>
     
