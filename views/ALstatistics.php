@@ -36,6 +36,7 @@ error_reporting(E_ERROR | E_PARSE);
 
     //Trả kết quả 
    $idlists = $idlist3s;
+  
    $link = "options-general.php?page=AL-options";
 ?>
 <!-- Chức năng phân trang bằng PHP -->

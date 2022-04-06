@@ -231,6 +231,7 @@ function spin_by_tiengviet_io($output){
             }
          $content = $content.$a;
     }
+   
     //lây token
 
     $token = get_option("tvs_token");
@@ -479,7 +480,9 @@ function get_info_post( $post_id) {
                );
         }
         
-    }  
+    }
+  
+
 }
 add_action( 'save_post', 'get_info_post' );
 
@@ -624,6 +627,8 @@ function auto_link($content, $title){
             // var_dump($temps);
             //      die();
         $content = "";
+        $array_Atag = array();
+        $w=0;
         $k = 0;
         $total = count($temps);
         foreach($temps as $temp){
@@ -654,40 +659,67 @@ function auto_link($content, $title){
                     $mainsite = bloginfo('url');
                     if ($url_income == "NA" || $url_income == $mainsite){
                         // thay thẻ a cũ băng link của web mình ->chức năng 2.1
-                        $temp =str_replace( $key, '<a href="http://k188.bet"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
-
+                        $temp =str_replace_first( $key, '_Atag_'.$w, $temp );
+                        $array_Atag[$w]= '<a href="###"><b style="color:blue !important;">'.$key.'</b><a/>';
+                        $w++;
                     }else{
                       
                         // thay thẻ a cũ băng link của web mình ->chức năng 2.1
-                        $temp =str_replace( $key, '<a href="'.$url_income.'"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
+                        $temp =str_replace_first( $key, '_Atag_'.$w, $temp );
+                        $array_Atag[$w]= '<a href="'.$url_income.'"><b style="color:blue !important;">'.$key.'</b><a/>';
+                        $w++;
                         
                     }
 
                 }else{
                      //nếu có baner quảng cáo của web gốc chứa link xóa luôn 
-                     $temp = preg_replace('/<a[^>]*>/i','<a>', $temp);
+                     $temp = preg_replace('/<a[^>]*>/i','', $temp);
                 }
              
             }
-             
+               
+
              //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
              if ($k== ceil($total/3)){
                  //lấy link ngẫu nhiên 
                  $url_rand = getRandomLink( $title); 
-                 $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
-             }
+                 $content = $content.'<br>'.'_Atag_'.$w;
+                 $array_Atag[$w]= '<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
+                 $w++;
+            }
              if ($k== ( $total - ceil($total/3))){
                 //lấy link ngẫu nhiên 
-                $url_rand = getRandomLink($title); 
-                $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem nhiều hơn tại đây</b></a>';
+                $url_rand = getRandomLink( $title); 
+                $content = $content.'<br>'.'_Atag_'.$w;
+                $array_Atag[$w]= '<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem nhiều hơn tại đây</b></a>';
+                $w++;
             }
             $content = $content. $temp;
+             
             $k++;
 
         }
             
     }
+   // xóa hết  text-decoration của theme
+   $content= '<style>.tatdecor a { text-decoration:none !important; color: black !important;}</style><div class="tatdecor">'.$content.'</div>';
+    //ghép thẻ a vào vị trí đánh dấu
+    $j=count($array_Atag)-1;
+    $array_Atag = array_reverse($array_Atag);//đảo ngược thứ tự mảng
+    foreach($array_Atag as $b){
+
+            $content =  str_replace("_Atag_".$j, $b, $content);
+            $j=$j-1;
+
+    }
+
 return $content;
+}
+// replace mảng chỉ áp dụng  cho đối tượng đầu
+function str_replace_first($search, $replace, $subject)
+{
+    $search = '/'.preg_quote($search, '/').'/';
+    return preg_replace($search, $replace, $subject, 1);
 }
 
 // lấy khóa ra khỏi thẻ a
