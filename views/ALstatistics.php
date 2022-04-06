@@ -53,15 +53,16 @@ $start = ($page - 1) * $limit;
 
 // echo $numRows;
 
-$data = getdataWithLimit($start, $idlists);
+$data = getdataWithLimit($start, $idlists, $numRows);
 
-function getdataWithLimit($start, $idlists){
+function getdataWithLimit($start, $idlists, $numRows){
    
         $mot = array();
         $n = $start + 9;
         if($n>$numRows){
             $n = $numRows;
         }
+        // echo $numRows;
         if($start !== 0){
             $start = $start - 1;
         }
