@@ -59,7 +59,7 @@ function getdataWithLimit($start, $idlists){
    
         $mot = array();
         $n = $start + 9;
-        if($n<$numRows){
+        if($n>$numRows){
             $n = $numRows;
         }
         if($start !== 0){
