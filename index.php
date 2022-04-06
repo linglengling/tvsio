@@ -673,12 +673,12 @@ function auto_link($content, $title){
              //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
              if ($k== ceil($total/3)){
                  //lấy link ngẫu nhiên 
-                 $url_rand = getRandomLink($key, $title); 
+                 $url_rand = getRandomLink( $title); 
                  $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
              }
              if ($k== ( $total - ceil($total/3))){
                 //lấy link ngẫu nhiên 
-                $url_rand = getRandomLink($key, $title); 
+                $url_rand = getRandomLink($title); 
                 $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem nhiều hơn tại đây</b></a>';
             }
             $content = $content. $temp;
@@ -727,7 +727,7 @@ function getLink($key, $title){
 
 }
 //lấy link ngẫu nhiên
-function getRandomLink($key, $title){
+function getRandomLink( $title){
 
     global  $wpdb ;
    
@@ -743,7 +743,7 @@ function getRandomLink($key, $title){
         $wpdb->insert(Statistics_table(), array(
             "link_from" => $idfrom  ,
             "title_to" => $title,
-            "anchor" => $key
+            "anchor" => "xem thêm"
         ));
 
         $url_income = $all->guid;
