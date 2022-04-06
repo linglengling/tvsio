@@ -656,7 +656,7 @@ function getLink($key, $title){
     global  $wpdb ;
    
     $tablePost = $wpdb->prefix.'posts';
-    $querystr  = "SELECT *  FROM $tablePost WHERE post_content LIKE '%$key%' ORDER BY RAND() LIMIT 1";
+    $querystr  = "SELECT *  FROM $tablePost  WHERE post_status = 'publish' AND post_type = 'post' AND post_content LIKE '%$key%' ORDER BY RAND() LIMIT 1";
     $alls = $wpdb->get_results($querystr, OBJECT);
    // nếu khóa có income post thì trả về đường dẫn của income post
     if($alls){
@@ -715,3 +715,27 @@ function get_info_post_autolink( $post_id) {
     }
 }
 add_action( 'save_post', 'get_info_post_autolink' );
+ /**
+     * Get Incoming Links Count
+     *
+     */
+
+ function getIncomingLinksCount( $id)
+    {
+        global  $wpdb ;
+        $ilj_linkindex_table = $wpdb->prefix . "statistics";
+        $incoming_links = $wpdb->get_var( "SELECT count(link_to) FROM {$ilj_linkindex_table} WHERE (link_to = '" . $id . "')" );
+        return (int) $incoming_links;
+    }
+    
+    /**
+     * Get Outgoing Links Count
+     *
+     */
+ function getOutgoingLinksCount( $id )
+    {
+        global  $wpdb ;
+        $ilj_linkindex_table = $wpdb->prefix . "statistics";
+        $outgoing = $wpdb->get_var( "SELECT count(link_from) FROM {$ilj_linkindex_table} WHERE (link_from = '" . $id . "')" );
+        return (int) $outgoing;
+    }

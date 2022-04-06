@@ -30,8 +30,8 @@ function statusdata_create()
 
      $DB_query3 = "CREATE TABLE $DB_tb_name3(
         id int(110) NOT NULL AUTO_INCREMENT,
-        link_from BIGINT(20) DEFAULT 0,
-        link_to BIGINT(20) DEFAULT 0,
+        link_from int(110) DEFAULT 0,
+        link_to int(110) DEFAULT 0,
         type_from VARCHAR(45) DEFAULT '',
         type_to VARCHAR(45) DEFAULT '',
         title_to varchar(255) DEFAULT '',
