@@ -169,7 +169,35 @@ function prefix_add_fields_autolink( $meta_boxes) {
     return  $meta_boxes;
 }
 add_filter( 'rwmb_meta_boxes', 'prefix_add_fields_autolink' );
+// đếm số chữ trong đoạn chuỗi
+function get_num_of_words($string) {
+    $string = preg_replace('/\s+/', ' ', trim($string));
+    $words = explode(" ", $string);
+    return count($words);
+}
+// tách chuối thành hai nghàn chữ đầu tiên và phần còn lại
+function split_2000_words_and_the_rest($string){
+    $origin = $string;
+    $string = preg_replace('/\s+/', ' ', trim($string));
+    $words = explode(" ", $string);
+    $b = "";
+    $i = 0;
+    foreach($words as $a){
+        $i++;
+        if($i<=2000){
+            $b = $b.$a;
+        }
 
+   }
+
+   $mid = strlen($b)+1999;
+   $c = array();
+   $c[0] = substr($origin,0,$mid); 
+
+   $c[1] =  substr($origin,$mid+1,strlen($origin)-$mid); 
+
+    return $c;
+}
 function statustoken_table() {
   //khai báo biến tại đây
   global $wpdb;
@@ -191,12 +219,25 @@ function spin_by_tiengviet_io($output){
     global $wpdb;
 
     // tách ảnh
+    $array = preg_split('/(<img[^>]+\>)/i', $output['post_content'], -1, PREG_SPLIT_DELIM_CAPTURE);
+    $i = 0;
+    $content ="";
     $imgarray = array();
-    $data = array("text" => $output['post_content']);
-    $temps = postAPISEO($data, 'tachanh');
-    $content = $temps["text"];
-    $imgarray =  $temps["imgarray"];
-   
+    foreach($array as $a){
+         if (strpos($a, '<img') !== false){
+            $imgarray[$i] = $a;
+            $a = "img_".$i;
+            $i = $i+1;
+            }
+         $content = $content.$a;
+    }
+    //use for installing only
+    // $imgarray = array();
+    // $data = array("text" => $output['post_content']);
+    // $temps = postAPISEO($data, 'tachanh');
+    // $content = $temps["text"];
+    // $imgarray =  $temps["imgarray"];
+    //use for installing only
    
     //lây token
 
@@ -355,9 +396,14 @@ function spin_by_tiengviet_io($output){
              
             //cắt chuỗi làm đôi 2000 từ và phần còn lại rồi spin
             $generalpart = array();
-            $data = array("text" => $content);
-            $temps = postAPISEO($data, 'tach2000');
-            $generalpart = $temps["text"];
+            $generalpart = split_2000_words_and_the_rest($content);
+
+            //use for installing only
+            // $data = array("text" => $content);
+            // $temps = postAPISEO($data, 'tach2000');
+            // $generalpart = $temps["text"];
+             //use for installing only
+
             $first_part = $generalpart[0];            
             $second_part =  $generalpart[1];
             $first_part = tiengvietIO($first_part, $token);
@@ -393,9 +439,20 @@ function spin_by_tiengviet_io($output){
    
 
     //ghép ảnh vào lại vị trí cũ (duyệt mảng ngược để img_10 sẽ thay trước sau đó img_1 thay sau tránh tình trạng thay nhầm img_1 vào cả hai)
-    $data = array("text" => $content, "imgarray" => $imgarray);
-    $temps = postAPISEO($data, 'ghepanh');
-    $content = $temps["text"];
+    $j=count($imgarray)-1;
+    $imgarray = array_reverse($imgarray);//đảo ngược thứ tự mảng
+    foreach($imgarray as $b){
+
+            $content =  str_replace("img_".$j, $b, $content);
+            $j=$j-1;
+
+    }
+
+    // installing only
+    // $data = array("text" => $content, "imgarray" => $imgarray);
+    // $temps = postAPISEO($data, 'ghepanh');
+    // $content = $temps["text"];
+    // installing only
 
     //thực hiện autolink
     $content = auto_link($content , $output['post_title']);
@@ -464,11 +521,25 @@ function respin()
     $content = $content_post->post_content;
 
      // tách ảnh
+     $array = preg_split('/(<img[^>]+\>)/i', $output['post_content'], -1, PREG_SPLIT_DELIM_CAPTURE);
+     $i = 0;
+     $content ="";
      $imgarray = array();
-     $data = array("text" => $output['post_content']);
-     $temps = postAPISEO($data, 'tachanh');
-     $content = $temps["text"];
-     $imgarray =  $temps["imgarray"];
+     foreach($array as $a){
+          if (strpos($a, '<img') !== false){
+             $imgarray[$i] = $a;
+             $a = "img_".$i;
+             $i = $i+1;
+             }
+          $content = $content.$a;
+     }
+     //use for installing only
+     // $imgarray = array();
+     // $data = array("text" => $output['post_content']);
+     // $temps = postAPISEO($data, 'tachanh');
+     // $content = $temps["text"];
+     // $imgarray =  $temps["imgarray"];
+     //use for installing only
 
     //lây token
 
@@ -502,10 +573,15 @@ function respin()
        $tam = $content;
         
        //cắt chuỗi làm đôi 2000 từ và phần còn lại rồi spin
-       $generalpart = array();
-       $data = array("text" => $content);
-       $temps = postAPISEO($data, 'tach2000');
-       $generalpart = $temps["text"];
+       $generalpart = array(); 
+        $generalpart = split_2000_words_and_the_rest($content);
+
+            //use for installing only
+            // $data = array("text" => $content);
+            // $temps = postAPISEO($data, 'tach2000');
+            // $generalpart = $temps["text"];
+             //use for installing only
+
        $first_part = $generalpart[0];            
        $second_part =  $generalpart[1];
        $first_part = tiengvietIO($first_part, $token);
@@ -528,9 +604,20 @@ function respin()
           
     }
     //ghép ảnh vào lại vị trí cũ (duyệt mảng ngược để img_10 sẽ thay trước sau đó img_1 thay sau tránh tình trạng thay nhầm img_1 vào cả hai)
-    $data = array("text" => $content, "imgarray" => $imgarray);
-    $temps = postAPISEO($data, 'ghepanh');
-    $content = $temps["text"];
+    $j=count($imgarray)-1;
+    $imgarray = array_reverse($imgarray);//đảo ngược thứ tự mảng
+    foreach($imgarray as $b){
+
+            $content =  str_replace("img_".$j, $b, $content);
+            $j=$j-1;
+
+    }
+
+    // installing only
+    // $data = array("text" => $content, "imgarray" => $imgarray);
+    // $temps = postAPISEO($data, 'ghepanh');
+    // $content = $temps["text"];
+    // installing only
 
     //  Cập nhật lại nội dung bài viết
     $my_post = array(
@@ -576,12 +663,17 @@ function auto_link($content, $title){
           $content =  str_replace("[AUTO_BUILD_INTERNAL_LINK]", "", $content);
            
         //cắt content ra thành nhiều đoạn
-        $data = array("text" => $content);
-        $temps = postAPISEO($data, 'catnho');
-        $temps = $temps["text"];
+        preg_match_all('/<([^\s>]+)(.*?)>((.*?)<\/\1>)?|(?<=^|>)(.+?)(?=$|<)/i',$content,$temps);
+            $temps = $temps[0];
 
+        // istalling only
+        // $data = array("text" => $content);
+        // $temps = postAPISEO($data, 'catnho');
+        // $temps = $temps["text"];
+         // istalling only
             // var_dump($temps);
             //      die();
+
         $content = "";
         $array_Atag = array();
         $w=0;
@@ -600,10 +692,13 @@ function auto_link($content, $title){
             $temp=  str_replace('</b>', '', $temp);
 
                 //lấy khóa ra khỏi thẻ a
-                 $data = array("text" => $temp);
-                 $temps = postAPISEO($data, 'layanchor');
-                 $key =  $temps["text"];
-      
+                $key = getKeywordInAtags($temp);
+
+                //installing only
+                //  $data = array("text" => $temp);
+                //  $temps = postAPISEO($data, 'layanchor');
+                //  $key =  $temps["text"];
+                 //installing only
                
                if ($key != "" && $key != NULL){
                
@@ -614,10 +709,14 @@ function auto_link($content, $title){
                     echo $url_income;
                     echo "<hr>";
                     //xóa link thẻ a cũ
-                    $data = array("text" => $temp);
-                    $temps = postAPISEO($data, 'xoaa');
-                    $temp =  $temps["text"];
-                   
+                    $temp = preg_replace('/<a[^>]*>([\s\S]*?)<\/a>/i','\1', $temp);
+
+                    //installing only
+                    // $data = array("text" => $temp);
+                    // $temps = postAPISEO($data, 'xoaa');
+                    // $temp =  $temps["text"];
+                   //installing only
+
                     $mainsite = bloginfo('url');
                     if ($url_income == "NA" || $url_income == $mainsite){
                         // thay thẻ a cũ băng link của web mình ->chức năng 2.1
@@ -668,6 +767,14 @@ function str_replace_first($search, $replace, $subject)
 {
     $search = '/'.preg_quote($search, '/').'/';
     return preg_replace($search, $replace, $subject, 1);
+}
+
+
+// lấy khóa ra khỏi thẻ a remove installing only
+function getKeywordInAtags($string) {
+    $pattern = "/<a?.*>(.*)<\/a>/";
+    preg_match($pattern, $string, $matches);
+    return $matches[1];
 }
 
 //lấy link ngẫu nhiên bằng khóa 
