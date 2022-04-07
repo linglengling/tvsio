@@ -742,7 +742,7 @@ function auto_link($content, $title){
              if ($k== ceil($total/3)){
                  //lấy link ngẫu nhiên 
                  $url_rand = getRandomLink( $title); 
-                 $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
+                 $content = $content.'<br>'.'<a href="'.$url_rand  .'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
                 
             }
              if ($k== ( $total - ceil($total/3))){
@@ -900,12 +900,65 @@ add_action( 'save_post', 'get_info_post_autolink' );
 ////            ////    ////   ////     ////    ////    ////////
    /////////    ////     ////  /////////////    ////        ////
 
+// set up for cron
+ register_activation_hook( __FILE__, 'cronsetup_activation' );
 
+function cronsetup_activation(){
+    add_option('guesslink_enabled', FALSE);
+    add_option('guesslink_total', 0);
+}
+// Bật tắt cronjob
+add_action("wp_ajax_changeidswitch", "changeidswitch");
+add_action("wp_ajax_nopriv_changeidswitch", "changeidswitch");
+
+function changeidswitch()
+{
+    update_option('guesslink_enabled', !get_option('guesslink_enabled'));
+    // trả API về cho ajax
+    echo json_encode(array("status"=>1, "message"=>"changeidswitch ok"));
+    update_option('guesslink_total', 0);
+    wp_unschedule_hook('guess_post_cron');
+}
 //adding custom interval
+add_filter( 'cron_schedules', 'My_ten_mitute_cron_interval' );
+function My_ten_mitute_cron_interval( $schedules ) { 
+    $schedules['ten_minute'] = array(
+        'interval' => 3,
+        'display'  => esc_html__( 'Every ten minutes' ), );
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'My_thirty_mitute_cron_interval' );
+function My_thirty_mitute_cron_interval( $schedules ) { 
+    $schedules['thirty_minute'] = array(
+        'interval' => 1800,
+        'display'  => esc_html__( 'Every thirty minutes' ), );
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'My_one_hour_cron_interval' );
+function My_one_hour_cron_interval( $schedules ) { 
+    $schedules['one_hour'] = array(
+        'interval' => 3600,
+        'display'  => esc_html__( 'Every one hour' ), );
+    return $schedules;
+}
 
 //setting my custom hook wp cron job
+add_action('guess_post_cron', 'guess_post_cron_implement');
 
 //the event function
 
+function guess_post_cron_implement(){
+   
+    if ( FALSE == get_option('guesslink_enabled') ) {	// if not enabled - do nothing
+		return;
+	}
+    $i = (int)get_option('guesslink_total');
+    update_option('guesslink_total',$i+ 1);
+}
+
 //scheduling recurring event
+if(! wp_next_scheduled( "guess_post_cron" )){
+    wp_schedule_event( time(), 'ten_minute', 'guess_post_cron' );
+}
+
 

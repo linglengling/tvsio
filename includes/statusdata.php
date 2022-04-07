@@ -3,7 +3,7 @@
 function statusdata_create()
 {
     global  $wpdb;
-
+    
     //step1:
     $DB_tb_name = $wpdb->prefix.'statusdata';
     $DB_tb_name1 = $wpdb->prefix.'statustoken';

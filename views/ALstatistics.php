@@ -83,9 +83,24 @@ function getdataWithLimit($start, $idlists, $numRows){
 <!-- Bootstrap CDN -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
 
 <!-- Html bảng thống kê  -->
 <h2>Bảng thống kê đi link nội bộ</h2>
+
+<?php
+
+
+ if ( FALSE == get_option('guesslink_enabled') ) {	// hiển thị trạng thái nút tùy chọn đi link tự động
+    $idswitch = "";
+}else{
+    $idswitch = "checked";
+}
+?>
+<a>Nếu bạn muốn tự động đi link guess post cho các bài viết cũ ấn vào nút bên cạnh để bật hoặc tắt</a>
+<input id="toggle-event" type="checkbox" <?php echo $idswitch; ?> data-toggle="toggle" data-on="Mở" data-off="Tắt">
+<a><b style="color: balck; ">Số bài cũ đã được đi link guess post :</b><b style="color: red; ">(<?php echo get_option('guesslink_total'); ?> bài)</b></a>
 <table id="customers" width="100%" >
 <thead>
     <tr>
@@ -136,3 +151,19 @@ function getdataWithLimit($start, $idlists, $numRows){
   </tr>
   
   </table>
+
+  <script>
+      jQuery(function() {
+        jQuery('#toggle-event').change(function() {
+            console.log("chạy changeidswitch ");
+            var postdata = "action=changeidswitch"
+            jQuery.post("../../../wp-admin/admin-ajax.php", postdata, function(response) {
+            
+                console.log(response);
+                setTimeout(function() {
+                    location.reload();
+                }, 300);
+             });
+        })
+    })
+  </script>
