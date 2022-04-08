@@ -120,11 +120,11 @@ error_reporting(E_ERROR | E_PARSE);
     <style>
 #incoming_View{
     background-color:#fff;
-    width:1200px;
-    height:900px;
+    width:60%;
+    height:100%;
     display:block;
     position:fixed;
-    top:20%;
+    top:30%;
     left:30%;
     margin:-150px 0 0 -150px;
 }
@@ -154,12 +154,12 @@ error_reporting(E_ERROR | E_PARSE);
     <style>
 #outgoingView{
     background-color:#fff;
-    width:1200px;
-    height:900px;
+    width:80%;
+    height:100%;
     display:block;
     position:fixed;
-    top:20%;
-    left:30%;
+    top:30%;
+    left:25%;
     margin:-150px 0 0 -150px;
 }
         
@@ -192,7 +192,7 @@ error_reporting(E_ERROR | E_PARSE);
     <?php foreach($data1 as $item): if( $item < 10):?>
 
     <tr>
-        <td><?php echo get_the_title($item->link_to);?></td>
+        <td><a href="<?php echo get_permalink($item->link_to);?>"><?php echo get_the_title($item->link_to);?></a></td>
         <td><?php echo get_cat_name(wp_get_post_categories($item->link_to)[0]);?></td>  
     </tr>
 
@@ -220,7 +220,7 @@ error_reporting(E_ERROR | E_PARSE);
     <?php foreach($data2 as $item): ?>
 
     <tr>
-        <td><?php echo get_the_title($item->link_from);?></td>
+    <td><a href="<?php echo get_permalink($item->link_from);?>"><?php echo get_the_title($item->link_from);?></a></td>
         <td><?php echo get_cat_name(wp_get_post_categories($item->link_from)[0]);?></td>  
     </tr>
 

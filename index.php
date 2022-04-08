@@ -956,6 +956,17 @@ function My_one_hour_cron_interval( $schedules ) {
 //setting my custom hook wp cron job
 add_action('guess_post_cron', 'guess_post_cron_implement');
 
+// lấy mảng id các bài có link nội bộ
+global $wpdb;
+$table = $wpdb->prefix.'statistics';
+$querystr1  = "SELECT * FROM $table ";
+$idlists = $wpdb->get_results($querystr1, OBJECT);
+$idincome = array();
+foreach($idlists as $idlist){
+  
+    array_push($idincome, $idlist->link_to);
+}
+
 //the event function
 
 function guess_post_cron_implement(){
