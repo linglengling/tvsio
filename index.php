@@ -677,8 +677,6 @@ function auto_link($content, $title){
         $content = "";
         $array_Atag = array();
         $w=0;
-        $k = 0;
-        $total = count($temps);
         foreach($temps as $temp){
             
            
@@ -708,8 +706,7 @@ function auto_link($content, $title){
                     echo "<hr>";
                     echo $url_income;
                     echo "<hr>";
-                    //xóa link thẻ a cũ
-                    $temp = preg_replace('/<a[^>]*>([\s\S]*?)<\/a>/i','\1', $temp);
+                  
 
                     //installing only
                     // $data = array("text" => $temp);
@@ -719,11 +716,12 @@ function auto_link($content, $title){
 
                     $mainsite = bloginfo('url');
                     if ($url_income == "NA" || $url_income == $mainsite){
-                        // thay thẻ a cũ băng link của web mình ->chức năng 2.1
-                        $temp =str_replace_first( $key, '<a href="###"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
+                          //xóa link thẻ a cũ
+                        $temp = preg_replace('/<a[^>]*>([\s\S]*?)<\/a>/i','\1', $temp);
                        
                     }else{
-                      
+                        //xóa link thẻ a cũ
+                          $temp = preg_replace('/<a[^>]*>([\s\S]*?)<\/a>/i','\1', $temp);
                         // thay thẻ a cũ băng link của web mình ->chức năng 2.1
                         $temp =str_replace_first( $key, '<a href="'.$url_income.'"><b style="color:blue !important;">'.$key.'</b><a/>', $temp );
                      
@@ -738,27 +736,41 @@ function auto_link($content, $title){
             }
                
 
-             //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
-             if ($k== ceil($total/3)){
-                 //lấy link ngẫu nhiên 
-                 $url_rand = getRandomLink( $title); 
-                 $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem Thêm tại đây</b></a>';
-                
-            }
-             if ($k== ( $total - ceil($total/3))){
-                //lấy link ngẫu nhiên 
-                $url_rand = getRandomLink( $title); 
-                $content = $content.'<br>'.'<a href="'.$url_rand.'">>>><b style="color:blue !important;">Xem nhiều hơn tại đây</b></a>';
              
-            }
             $content = $content. $temp;
-            $k++;
         }
             
     }
    // xóa hết  text-decoration của theme
-   $content= '<style>.tatdecor a { text-decoration:none !important; color: black !important;}</style><div class="tatdecor">'.$content.'</div>';
+//    $content= '<style>.tatdecor a { text-decoration:none !important; color: black !important;}</style><div class="tatdecor">'.$content.'</div>';
+
+
+//ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
+$pq = explode('</p>', $content);
+
+$content = "";
+$n = count($pq);
+$k = 0;
+foreach ($pq as $o){
     
+   
+   $content = $content. $o."</p>";
+   if ($k== ceil($n/3)){
+    //lấy link ngẫu nhiên 
+    $url_rand = getRandomLink( $title);
+    
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'">>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
+   
+    }
+    if ($k== (ceil($n/1.5))){
+    //lấy link ngẫu nhiên 
+    $url_rand = getRandomLink( $title); 
+        
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'">>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
+    
+    }
+   $k++;
+}
 
 return $content;
 }
@@ -826,8 +838,7 @@ function getRandomLink( $title){
             "anchor" => "xem thêm"
         ));
 
-        $url_income = $all->guid;
-         return $url_income;
+         return $idfrom;
     
 
 }
@@ -872,7 +883,7 @@ add_action( 'save_post', 'get_info_post_autolink' );
      *
      */
 
- function getIncomingLinksCount( $id)
+ function getOutgoingLinksCount( $id)
     {
         global  $wpdb ;
         $ilj_linkindex_table = $wpdb->prefix . "statistics";
@@ -884,28 +895,11 @@ add_action( 'save_post', 'get_info_post_autolink' );
      * Get Outgoing Links Count
      *
      */
- function getOutgoingLinksCount( $id )
+ function getIncomingLinksCount( $id )
     {
         global  $wpdb ;
         $ilj_linkindex_table = $wpdb->prefix . "statistics";
         $outgoing = $wpdb->get_var( "SELECT count(link_from) FROM {$ilj_linkindex_table} WHERE (link_from = '" . $id . "')" );
         return (int) $outgoing;
     }
-
-
-   /////////    ///////////    /////////////    ////        ////
-////            ////    ////   ////     ////    ////////    ////
-////            ////  ////     ////     ////    //// ////   ////
-////            /////////      ////     ////    ////  ////  ////  
-////            ////    ////   ////     ////    ////    ////////
-   /////////    ////     ////  /////////////    ////        ////
-
-
-//adding custom interval
-
-//setting my custom hook wp cron job
-
-//the event function
-
-//scheduling recurring event
 
