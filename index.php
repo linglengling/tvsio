@@ -759,14 +759,14 @@ foreach ($pq as $o){
     //lấy link ngẫu nhiên 
     $url_rand = getRandomLink( $title);
     
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'">>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"Xem thêm>>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
    
     }
     if ($k== (ceil($n/1.5))){
     //lấy link ngẫu nhiên 
     $url_rand = getRandomLink( $title); 
         
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'">>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"Xem thêm>>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
     
     }
    $k++;
