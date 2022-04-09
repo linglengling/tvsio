@@ -154,12 +154,12 @@ error_reporting(E_ERROR | E_PARSE);
     <style>
 #outgoingView{
     background-color:#fff;
-    width:80%;
+    width:60%;
     height:100%;
     display:block;
     position:fixed;
     top:30%;
-    left:25%;
+    left:30%;
     margin:-150px 0 0 -150px;
 }
         
