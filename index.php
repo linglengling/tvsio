@@ -759,14 +759,14 @@ foreach ($pq as $o){
     //lấy link ngẫu nhiên 
     $url_rand = getRandomLink( $title);
     
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"Xem thêm>>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">Xem thêm>>'. get_the_title($url_rand).'</b></a>';
    
     }
     if ($k== (ceil($n/1.5))){
     //lấy link ngẫu nhiên 
     $url_rand = getRandomLink( $title); 
         
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"Xem thêm>>>><b style="color:blue !important;">'. get_the_title($url_rand).'</b></a>';
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">Xem thêm>>'. get_the_title($url_rand).'</b></a>';
     
     }
    $k++;
@@ -883,11 +883,11 @@ add_action( 'save_post', 'get_info_post_autolink' );
      *
      */
 
- function getOutgoingLinksCount( $id)
+ function getIncomingLinksCount( $id)
     {
         global  $wpdb ;
         $ilj_linkindex_table = $wpdb->prefix . "statistics";
-        $incoming_links = $wpdb->get_var( "SELECT count(link_to) FROM {$ilj_linkindex_table} WHERE (link_to = '" . $id . "')" );
+        $incoming_links = $wpdb->get_var( "SELECT count(link_from) FROM {$ilj_linkindex_table} WHERE (link_from = '" . $id . "')" );
         return (int) $incoming_links;
     }
     
@@ -895,11 +895,11 @@ add_action( 'save_post', 'get_info_post_autolink' );
      * Get Outgoing Links Count
      *
      */
- function getIncomingLinksCount( $id )
+ function getOutgoingLinksCount( $id )
     {
         global  $wpdb ;
         $ilj_linkindex_table = $wpdb->prefix . "statistics";
-        $outgoing = $wpdb->get_var( "SELECT count(link_from) FROM {$ilj_linkindex_table} WHERE (link_from = '" . $id . "')" );
+        $outgoing = $wpdb->get_var( "SELECT count(link_to) FROM {$ilj_linkindex_table} WHERE (link_to = '" . $id . "')" );
         return (int) $outgoing;
     }
 
