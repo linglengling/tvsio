@@ -3,7 +3,7 @@ error_reporting(E_ERROR | E_PARSE);
 
     // lấy mảng id các bài có link nội bộ
     global $wpdb;
-
+    define('AL_PLUGIN_URL', plugin_dir_url( __FILE__ ));
     $table = $wpdb->prefix.'statistics';
 
     $querystr1  = "SELECT * FROM
@@ -235,7 +235,7 @@ error_reporting(E_ERROR | E_PARSE);
       jQuery(function() {
         jQuery('#toggle-event').change(function() {
             var postdata = "action=changeidswitch"
-            jQuery.post("../../../wp-admin/admin-ajax.php", postdata, function(response) {
+            jQuery.post("<?php echo admin_url('admin-ajax.php');?>", postdata, function(response) {
             
                 console.log(response);
                 // setTimeout(function() {
@@ -270,7 +270,7 @@ error_reporting(E_ERROR | E_PARSE);
     var select = document.getElementById('sel_cur');
     var CT = select.options[select.selectedIndex].value;
      var postdata = "action=changeCT&CT="+ CT ;
-     jQuery.post("../../../wp-admin/admin-ajax.php", postdata, function(response) {
+     jQuery.post("<?php echo admin_url('admin-ajax.php');?>", postdata, function(response) {
         console.log(response);
         setTimeout(function() {
                   location.reload();
