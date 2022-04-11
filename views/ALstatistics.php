@@ -20,7 +20,8 @@ error_reporting(E_ERROR | E_PARSE);
    
         
     $tableCT = $wpdb->prefix.'terms';
-    $categories = $wpdb->get_results("select * from $tableCT ");
+    $tableRL= $wpdb->prefix.'term_taxonomy';
+    $categories = $wpdb->get_results("SELECT * FROM $tableCT INNER JOIN $tableRL on $tableCT.term_id = $tableRL.term_id WHERE $tableRL.taxonomy = 'category' ");
     $CT = get_option('CT_option');
 ?>
 
