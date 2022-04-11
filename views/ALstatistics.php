@@ -3,41 +3,25 @@ error_reporting(E_ERROR | E_PARSE);
 
     // lấy mảng id các bài có link nội bộ
     global $wpdb;
+
     $table = $wpdb->prefix.'statistics';
-    $querystr1  = "SELECT * FROM $table ";
+
+    $querystr1  = "SELECT * FROM
+    (SELECT * FROM (SELECT DISTINCT `link_to` AS `ID` FROM $table UNION SELECT DISTINCT `link_from` AS `ID` FROM $table) AS A 
+    LEFT JOIN (SELECT `link_to` , COUNT(link_to) AS income FROM $table GROUP BY `link_to` ) AS B ON A.ID = B.link_to) AS D
+    INNER JOIN
+    (SELECT * FROM (SELECT DISTINCT `link_to` AS `ID` FROM $table UNION SELECT DISTINCT `link_from` AS `ID` FROM $table) AS A
+    LEFT JOIN (SELECT `link_from` , COUNT(link_from) AS outcome FROM $table GROUP BY `link_from` ) AS C ON A.ID = C.link_from) AS E 
+    ON D.ID = E.ID LIMIT 3000 ";
+
     $idlists = $wpdb->get_results($querystr1, OBJECT);
-    $idlist1s = array();
-    $idlist2s = array();
-    foreach($idlists as $idlist){
-      
-        array_push($idlist1s, $idlist->link_from);
-        
-       
-        array_push($idlist2s, $idlist->link_to);
-    }
-
-    //Trộn hai mảng id outcome và income 
-    $idlists = array_merge($idlist1s, $idlist2s);
-
-    //lọc trùng
-    $result = array();
-    foreach ($idlists as $key => $value){
-        if(!in_array($value, $result))
-          $result[$key]=$value;
-      }
-
-    // đánh số index lại cho mảng lọc trùng
-    $idlist3s = array();
-    $i = 0;
-    foreach ($result as $re){
-       $idlist3s[$i] = $re;
-       $i++;
-      }
-
-    //Trả kết quả 
-   $idlists = $idlist3s;
   
-   $link = "options-general.php?page=AL-options";
+    $link = "options-general.php?page=AL-options";
+   
+        
+    $tableCT = $wpdb->prefix.'terms';
+    $categories = $wpdb->get_results("select * from $tableCT ");
+    $CT = get_option('CT_option');
 ?>
 
 
@@ -56,6 +40,21 @@ error_reporting(E_ERROR | E_PARSE);
 <table id="example" class="wp-list-table example" width="100%" >
 <thead>
     <tr>
+        <th>Chuyên mục đang lọc: <?php echo get_option('CT_option'); ?></th>
+        <th> <select id="sel_cur" name="sel" class="category-select">
+           
+           <option value="no" selected >chưa chọn</option>
+          
+           <?php   foreach($categories as $category): ?>
+           <option value="<?php echo $category->name;?>"><?php echo $category->name; ?></option>
+           <?php endforeach; ?>
+           <?php if($CT!= "category"):?>
+            <option value="category"  >Bỏ lọc</option>
+           <?php endif; ?>
+       </select></th>
+        
+  </tr>
+     <tr>   
         <th>Tiêu đề bài viết</th>
         <th>category</th>
         <th>incoming link</th>
@@ -65,19 +64,30 @@ error_reporting(E_ERROR | E_PARSE);
     </tr>
 </thead>
 <tbody>
-    <?php foreach($idlists as $item): if( $item != 0):?>
-
-    <tr>
-        <td><?php echo get_the_title($item);?></td>
-        <td><?php echo get_cat_name(wp_get_post_categories($item)[0]);?></td>
-        <td><a id="show<?php echo $item;?>" href="<?php echo $link."&incoming_View=".$item?>"  data-id="<?php echo  $item; ?>" onClick="showDiv(1);"><?php echo getIncomingLinksCount($item);?></a></td>
-        <td><a id="show<?php echo $item;?>" href="<?php echo $link."&outgoingView=".$item?>"  data-id="<?php echo  $item; ?>" onClick="showDiv(2);"><?php echo getOutgoingLinksCount($item);?></a></td>
+    <?php foreach($idlists as $item): if ("category"== $CT):?>
+        <tr>
+        <td><?php echo get_the_title($item->ID);?></td>
+        <td><?php echo get_cat_name(wp_get_post_categories($item->ID)[0]);?></td>
+        <td><a id="show<?php echo $item->ID;?>" href="<?php echo $link."&outgoingView=".$item->ID?>"   onClick="showDiv(2);"><?php echo ($item->income == NULL)?0:$item->income;?></a></td>
+        <td><a id="show<?php echo $item->ID;?>" href="<?php echo $link."&incoming_View=".$item->ID?>"   onClick="showDiv(1);"><?php echo ($item->outcome == NULL)?0:$item->outcome;?></a></td>
+       
       
-        <td><a href="post.php?post=<?php echo ($item);?>&action=edit"><span class="dashicons dashicons-edit"></span></a></td>
+        <td><a href="post.php?post=<?php echo ($item->ID);?>&action=edit"><span class="dashicons dashicons-edit"></span></a></td>
+         
+    </tr>
+    <?php else : if(get_cat_name(wp_get_post_categories($item->ID)[0]) == $CT): ?>
+    <tr>
+        <td><?php echo get_the_title($item->ID);?></td>
+        <td><?php echo get_cat_name(wp_get_post_categories($item->ID)[0]);?></td>
+        <td><a id="show<?php echo $item->ID;?>" href="<?php echo $link."&outgoingView=".$item->ID?>"   onClick="showDiv(2);"><?php echo ($item->income == NULL)?0:$item->income;?></a></td>
+        <td><a id="show<?php echo $item->ID;?>" href="<?php echo $link."&incoming_View=".$item->ID?>"   onClick="showDiv(1);"><?php echo ($item->outcome == NULL)?0:$item->outcome;?></a></td>
+       
+      
+        <td><a href="post.php?post=<?php echo ($item->ID);?>&action=edit"><span class="dashicons dashicons-edit"></span></a></td>
          
     </tr>
 
-    <?php endif; endforeach;?>
+    <?php endif; endif; endforeach;?>
    
     </tbody>
     
@@ -177,14 +187,14 @@ error_reporting(E_ERROR | E_PARSE);
     </tr>
     </thead>
     <tbody>
-    <?php foreach($data1 as $item): if( $item < 10):?>
+    <?php foreach($data1 as $item):?>
 
     <tr>
         <td><a href="<?php echo get_permalink($item->link_to);?>"><?php echo get_the_title($item->link_to);?></a></td>
         <td><?php echo get_cat_name(wp_get_post_categories($item->link_to)[0]);?></td>  
     </tr>
 
-    <?php endif; endforeach;?>
+    <?php endforeach;?>
    
     </tbody>
     </table>
@@ -253,5 +263,20 @@ error_reporting(E_ERROR | E_PARSE);
         }
         
     }
+
+    jQuery("#sel_cur").on("change", OnSelectionChange);
+    function OnSelectionChange() {
+        console.log("chạy changeCT");
+    var select = document.getElementById('sel_cur');
+    var CT = select.options[select.selectedIndex].value;
+     var postdata = "action=changeCT&CT="+ CT ;
+     jQuery.post("../../../wp-admin/admin-ajax.php", postdata, function(response) {
+        console.log(response);
+        setTimeout(function() {
+                  location.reload();
+              }, 1300)
+
+     });
+}
     
   </script>

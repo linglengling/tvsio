@@ -746,6 +746,7 @@ function auto_link($content, $title){
 
 
 //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
+$content = str_replace('Source link', "", $content);
 $pq = explode('</p>', $content);
 
 $content = "";
@@ -759,14 +760,14 @@ foreach ($pq as $o){
     //lấy link ngẫu nhiên 
     $url_rand = getRandomLink( $title);
     
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">Xem thêm>>'. get_the_title($url_rand).'</b></a>';
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">>>>Xem thêm: '. get_the_title($url_rand).'</b></a>';
    
     }
     if ($k== (ceil($n/1.5))){
     //lấy link ngẫu nhiên 
     $url_rand = getRandomLink( $title); 
         
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">Xem thêm>>'. get_the_title($url_rand).'</b></a>';
+    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">>>>Xem thêm: '. get_the_title($url_rand).'</b></a>';
     
     }
    $k++;
@@ -903,3 +904,22 @@ add_action( 'save_post', 'get_info_post_autolink' );
         return (int) $outgoing;
     }
 
+// setup Category option
+register_activation_hook( __FILE__, 'changeCT_activation' );
+
+function changeCT_activation(){
+    
+    add_option('CT_option', "category");
+}
+
+// Đổi chuyên mục
+add_action("wp_ajax_changeCT", "changeCT");
+add_action("wp_ajax_nopriv_changeCT", "changeCT");
+
+function changeCT()
+{
+    update_option('CT_option', $_REQUEST["CT"]);
+    // trả API về cho ajax
+    echo json_encode(array("status"=>1, "message"=>"changeCT ok"));
+   
+}
