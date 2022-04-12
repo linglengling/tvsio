@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ERROR | E_PARSE);
 
-    // lấy mảng id các bài có link nội bộ
+  
     global $wpdb;
     define('AL_PLUGIN_URL', plugin_dir_url( __FILE__ ));
     $table = $wpdb->prefix.'statistics';
@@ -25,8 +25,6 @@ error_reporting(E_ERROR | E_PARSE);
     $CT = get_option('CT_option');
 ?>
 
-
-<!-- Bootstrap CDN -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
@@ -34,7 +32,6 @@ error_reporting(E_ERROR | E_PARSE);
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-<!-- Html bảng thống kê  -->
 <h2>Bảng thống kê đi link nội bộ</h2>
 
 

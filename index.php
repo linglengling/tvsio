@@ -792,7 +792,7 @@ function getKeywordInAtags($string) {
 
 //lấy link ngẫu nhiên bằng khóa 
 function getLink($key, $title){
-
+    if(is_multisite() || ms_is_switched()){
     global  $wpdb ;
    
     $tablePost = $wpdb->prefix.'posts';
@@ -817,11 +817,12 @@ function getLink($key, $title){
     //nếu khóa không có income post thì trả vê trang chủ
     $url_income = "NA";
     return $url_income;
+    }
 
 }
 //lấy link ngẫu nhiên
 function getRandomLink( $title){
-
+ if(is_multisite() || ms_is_switched()){
     global  $wpdb ;
    
     $tablePost = $wpdb->prefix.'posts';
@@ -840,43 +841,57 @@ function getRandomLink( $title){
         ));
 
          return $idfrom;
-    
+ }
 
 }
 
 // cập nhật id cho outcome post trong bảng thống kê autolink
 function get_info_post_autolink( $post_id) {
-
-    // Only set for post_type = post!
-    if ( 'post' !== get_post_type($post_id) ) {
-        return;
-    }
-    // If this is just a revision then do no thing
-    if ( wp_is_post_revision( $post_id ) ) {
-        return;
+    if(is_multisite() || ms_is_switched()){
+        echo "hahaaha";
+        // die();
+        // Only set for post_type = post!
+        if ( 'post' !== get_post_type($post_id) ) {
+            return;
         }
-    
-    global $wpdb;
-    $table = $wpdb->prefix.'statistics';
-    $querystr  = "SELECT *  FROM $table WHERE link_to  = 0";
-    $items = $wpdb->get_results($querystr, OBJECT);
-
-    $post_title = get_the_title( $post_id );
-    $id =  $post_id;
-   
-    //cập nhật bảng thống kê auto link
-    foreach($items as $item){
-
-        if($post_title === $item->title_to){
-            
-            $wpdb->update(
-                Statistics_table(),
-                array( "link_to" => $id ), 
-                array( "id" => $item->id)
-               );
-        }
+        // If this is just a revision then do no thing
+        if ( wp_is_post_revision( $post_id ) ) {
+            return;
+            }
         
+        global $wpdb;
+        $table = $wpdb->prefix.'statistics';
+        $querystr  = "SELECT *  FROM $table WHERE link_to  = 0";
+        $items = $wpdb->get_results($wpdb->prepare($querystr), OBJECT);
+
+        $post_title = get_the_title( $post_id );
+        $post_title = substr($post_title,- 4).substr($post_title,0,4); 
+        $id =  $post_id;
+         
+        //cập nhật bảng thống kê auto link
+        foreach($items as $item){
+            $check = substr($item->title_to, -4).substr($item->title_to,0,4);
+
+            if($post_title === $check){
+              
+                global $wpdb;
+                if( $wpdb->get_results($wpdb->prepare("UPDATE $table SET link_to = $id WHERE id =  $item->id"))
+                == FALSE){
+                    echo "/////////////////Thì ra là mày////////////////////";
+                  
+                }else{
+                    echo "/////////////////má nó tức tui á//////////////////";
+                    
+                }
+                
+            }
+            
+           
+       
+        }
+
     }
+    
 }
 add_action( 'save_post', 'get_info_post_autolink' );
  /**
