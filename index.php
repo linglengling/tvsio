@@ -660,7 +660,7 @@ function auto_link($content, $title){
        
      //xóa tag
           $content =  str_replace("[AUTO_BUILD_INTERNAL_LINK]", "", $content);
-          $content = str_replace('Source link', "", $content);
+          $content =  preg_replace('/<a[^>]*>Source link<\/a>/i', "", $content);
         //cắt content ra thành nhiều đoạn
         preg_match_all('/<([^\s>]+)(.*?)>((.*?)<\/\1>)?|(?<=^|>)(.+?)(?=$|<)/i',$content,$temps);
             $temps = $temps[0];
