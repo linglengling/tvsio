@@ -654,14 +654,13 @@ function Auto_Link_settings_page(){
 // bắt đầu các chức năng từ chỗ này
 
 function auto_link($content, $title){
-
 //check nếu có thẻ auto link thì làm
     if (strpos($content, "[AUTO_BUILD_INTERNAL_LINK]") !== false){
 
        
      //xóa tag
           $content =  str_replace("[AUTO_BUILD_INTERNAL_LINK]", "", $content);
-           
+          $content = str_replace('Source link', "", $content);
         //cắt content ra thành nhiều đoạn
         preg_match_all('/<([^\s>]+)(.*?)>((.*?)<\/\1>)?|(?<=^|>)(.+?)(?=$|<)/i',$content,$temps);
             $temps = $temps[0];
@@ -678,7 +677,8 @@ function auto_link($content, $title){
         $array_Atag = array();
         $w=0;
         foreach($temps as $temp){
-            
+           
+ 
            
             //nếu đoạn có thẻ a 
             if (strpos($temp, '<a') !== false){
@@ -688,10 +688,10 @@ function auto_link($content, $title){
             $temp=  str_replace('</strong>', '', $temp);
             $temp=  str_replace('<b>', '', $temp);
             $temp=  str_replace('</b>', '', $temp);
-
+   
                 //lấy khóa ra khỏi thẻ a
                 $key = getKeywordInAtags($temp);
-
+               
                 //installing only
                 //  $data = array("text" => $temp);
                 //  $temps = postAPISEO($data, 'layanchor');
@@ -746,7 +746,7 @@ function auto_link($content, $title){
 
 
 //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
-$content = str_replace('Source link', "", $content);
+
 $pq = explode('</p>', $content);
 
 $content = "";
@@ -792,7 +792,7 @@ function getKeywordInAtags($string) {
 
 //lấy link ngẫu nhiên bằng khóa 
 function getLink($key, $title){
-    if(is_multisite() || ms_is_switched()){
+  
     global  $wpdb ;
    
     $tablePost = $wpdb->prefix.'posts';
@@ -817,12 +817,12 @@ function getLink($key, $title){
     //nếu khóa không có income post thì trả vê trang chủ
     $url_income = "NA";
     return $url_income;
-    }
+    
 
 }
 //lấy link ngẫu nhiên
 function getRandomLink( $title){
- if(is_multisite() || ms_is_switched()){
+ 
     global  $wpdb ;
    
     $tablePost = $wpdb->prefix.'posts';
@@ -841,15 +841,14 @@ function getRandomLink( $title){
         ));
 
          return $idfrom;
- }
+ 
 
 }
 
 // cập nhật id cho outcome post trong bảng thống kê autolink
 function get_info_post_autolink( $post_id) {
-    if(is_multisite() || ms_is_switched()){
-        echo "hahaaha";
-        // die();
+   
+     
         // Only set for post_type = post!
         if ( 'post' !== get_post_type($post_id) ) {
             return;
@@ -865,6 +864,7 @@ function get_info_post_autolink( $post_id) {
         $items = $wpdb->get_results($wpdb->prepare($querystr), OBJECT);
 
         $post_title = get_the_title( $post_id );
+        echo "///////////////////###############".$post_title;
         $post_title = substr($post_title,- 4).substr($post_title,0,4); 
         $id =  $post_id;
          
@@ -873,16 +873,9 @@ function get_info_post_autolink( $post_id) {
             $check = substr($item->title_to, -4).substr($item->title_to,0,4);
 
             if($post_title === $check){
-              
+            // if($post_title === $$item->title_to){
                 global $wpdb;
-                if( $wpdb->get_results($wpdb->prepare("UPDATE $table SET link_to = $id WHERE id =  $item->id"))
-                == FALSE){
-                    echo "/////////////////Thì ra là mày////////////////////";
-                  
-                }else{
-                    echo "/////////////////má nó tức tui á//////////////////";
-                    
-                }
+                 $wpdb->get_results($wpdb->prepare("UPDATE $table SET link_to = $id WHERE id =  $item->id"));
                 
             }
             
@@ -890,7 +883,8 @@ function get_info_post_autolink( $post_id) {
        
         }
 
-    }
+    
+    
     
 }
 add_action( 'save_post', 'get_info_post_autolink' );
