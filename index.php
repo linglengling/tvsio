@@ -865,15 +865,17 @@ function get_info_post_autolink( $post_id) {
 
         $post_title = get_the_title( $post_id );
         echo "///////////////////###############".$post_title;
-        $post_title = substr($post_title,- 4).substr($post_title,0,4); 
+        // $post_title = substr($post_title,- 1).substr($post_title,0,1); 
         $id =  $post_id;
          
         //cập nhật bảng thống kê auto link
         foreach($items as $item){
-            $check = substr($item->title_to, -4).substr($item->title_to,0,4);
-
-            if($post_title === $check){
-            // if($post_title === $$item->title_to){
+            // $check = substr($item->title_to, -1).substr($item->title_to,0,1);
+            echo "//////////////////".$post_title;
+            echo "###############".$item->title_to;
+           
+           
+            if(isUTF8($post_title) === isUTF8($item->title_to)){
                 global $wpdb;
                  $wpdb->get_results($wpdb->prepare("UPDATE $table SET link_to = $id WHERE id =  $item->id"));
                 
@@ -886,6 +888,9 @@ function get_info_post_autolink( $post_id) {
     
     
     
+}
+function isUTF8($string) {
+    return (utf8_encode(utf8_decode($string)) == $string);
 }
 add_action( 'save_post', 'get_info_post_autolink' );
  /**
