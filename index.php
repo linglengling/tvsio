@@ -739,39 +739,39 @@ function auto_link($content, $title){
              
             $content = $content. $temp;
         }
-            
+      //ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
+
+                $pq = explode('</p>', $content);
+
+                $content = "";
+                $n = count($pq);
+                $k = 0;
+                foreach ($pq as $o){
+                    
+                
+                $content = $content. $o."</p>";
+                if ($k== ceil($n/3)){
+                    //lấy link ngẫu nhiên 
+                    $url_rand = getRandomLink( $title);
+                    
+                    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">>>>Xem thêm: '. get_the_title($url_rand).'</b></a>';
+                
+                    }
+                    if ($k== (ceil($n/1.5))){
+                    //lấy link ngẫu nhiên 
+                    $url_rand = getRandomLink( $title); 
+                        
+                    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">>>>Xem thêm: '. get_the_title($url_rand).'</b></a>';
+                    
+                    }
+                $k++;
+                }      
     }
    // xóa hết  text-decoration của theme
 //    $content= '<style>.tatdecor a { text-decoration:none !important; color: black !important;}</style><div class="tatdecor">'.$content.'</div>';
 
 
-//ghép content lại(ở đây sẽ chèn link xem thêm-> chức năng 2.2 vô)
 
-$pq = explode('</p>', $content);
-
-$content = "";
-$n = count($pq);
-$k = 0;
-foreach ($pq as $o){
-    
-   
-   $content = $content. $o."</p>";
-   if ($k== ceil($n/3)){
-    //lấy link ngẫu nhiên 
-    $url_rand = getRandomLink( $title);
-    
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">>>>Xem thêm: '. get_the_title($url_rand).'</b></a>';
-   
-    }
-    if ($k== (ceil($n/1.5))){
-    //lấy link ngẫu nhiên 
-    $url_rand = getRandomLink( $title); 
-        
-    $content = $content.'<br>'.'<a href="'. get_permalink($url_rand).'"<b style="color:blue !important;">>>>Xem thêm: '. get_the_title($url_rand).'</b></a>';
-    
-    }
-   $k++;
-}
 
 return $content;
 }
