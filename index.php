@@ -924,6 +924,7 @@ register_activation_hook( __FILE__, 'changeCT_activation' );
 function changeCT_activation(){
     
     add_option('CT_option', "category");
+    add_option('Blog_name', "mặc định");
 }
 
 // Đổi chuyên mục
@@ -936,4 +937,100 @@ function changeCT()
     // trả API về cho ajax
     echo json_encode(array("status"=>1, "message"=>"changeCT ok"));
    
+}
+
+// --------------------------------------------------Tạo page thống kê chiến dịch----------------------------------------------
+
+
+//tạo menu phụ
+add_action("admin_menu", "thongkechiendich_options_submenu");
+function thongkechiendich_options_submenu() {
+  add_submenu_page(
+        'options-general.php',
+        '
+        ',
+        'Trạng thái chiến dịch',
+        'administrator',
+        'CPS-options',
+        'cp_status_settings_page' );
+}
+
+function cp_status_settings_page(){
+    require_once  "views/cp_status.php";
+}
+
+// Đổi blog
+add_action("wp_ajax_changeCPS", "changeCPS");
+add_action("wp_ajax_nopriv_changeCPS", "changeCPS");
+
+function changeCPS()
+{
+    update_option('Blog_name', $_REQUEST["CPS"]);
+    // trả API về cho ajax
+    echo json_encode(array("status"=>1, "message"=>"changeCPS ok"));
+   
+}
+// ngày cào cuối cùng
+function lastpost($camp_id){
+    global $wpdb;
+    $CPS =  get_option('Blog_name');
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
+    @$key='Posted:'.$camp_id;
+    $table = $theprefix.'automatic_log';
+    //getting count from wplb_log
+    $query="SELECT `date`  FROM  $table WHERE action ='$key'  ORDER BY `date` DESC LIMIT 1";
+    $ress= $wpdb->get_results($query, OBJECT);
+   
+    @$res= $ress[0];
+    // @$resold = $ress[1];
+
+    date_default_timezone_set('Asia/Ho_Chi_Minh');
+    $now = time();
+    $current =  $res->date;
+    // $old =  $resold->date;
+    $time = date_parse_from_format('Y-m-d H:i:s', $current);
+    $time_stamp = mktime($time['hour'],$time['minute'],$time['second'],$time['month'],$time['day'],$time['year']);
+    
+    // $time_stampminute = floor(abs(strtotime($current) - strtotime($old))/(24*60)); 
+  
+    $status = "none";
+    if(($now - $time_stamp) > 2*24*60*60){
+        $status =  'mark';
+    }
+    return $res->date.$status;
+}
+// lượng bài đã cào
+function crawlpost($camp_id){
+    global $wpdb;
+    $CPS =  get_option('Blog_name');
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
+    @$key='Posted:'.$camp_id;
+    $table = $theprefix.'automatic_log';
+    //getting count from wplb_log
+    $query="SELECT COUNT(`id`) as numpost FROM  $table WHERE action ='$key'";
+    $res= $wpdb->get_results($query, OBJECT);
+   
+    @$res=$res[0];
+   return $res->numpost;
+      
+}
+// thời gian giữa hai lần cào
+function geteachtime($camp_id){
+    global $wpdb;
+    $CPS =  get_option('Blog_name');
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
+    $table = $theprefix.'automatic_camps';
+    $querycp = "SELECT * FROM $table WHERE camp_id = $camp_id ";
+    $cp =   $wpdb->get_results($querycp, OBJECT);
+    $camp_general = $cp[0]->camp_general;
+    $camp_general = unserialize ( base64_decode ( $camp_general ));
+    $post_every = $camp_general ['cg_update_every'] * $camp_general ['cg_update_unit'];
+    return $post_every;
+
 }
