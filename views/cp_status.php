@@ -16,7 +16,7 @@ $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
 $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
 $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
 $table = $theprefix.'automatic_camps';
-$querystrsub = "SELECT * FROM $table ";
+$querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
 $cplists = $wpdb->get_results($querystrsub, OBJECT);
 // var_dump($cplists);
 ?>
@@ -67,7 +67,7 @@ $cplists = $wpdb->get_results($querystrsub, OBJECT);
         <td style="<?php if(substr($temp,-4)=="mark"){echo 'background-color:#A4A4A4;';}?>"><?php echo substr($temp,0, strlen($temp)-4); ?></td>
         <td><?php echo crawlpost($item->camp_id); ?></td>
         <td><?php echo geteachtime($item->camp_id); ?></td>
-        <td><a href="<?php echo 'http://'. get_option('Blog_name'); ?>/wp-admin/post.php?post=<?php echo ($item->camp_id);?>&action=edit"><span class="dashicons dashicons-edit"></span></a></td>         
+        <td><a target="_blank" href="<?php echo 'http://'. get_option('Blog_name'); ?>/wp-admin/post.php?post=<?php echo ($item->camp_id);?>&action=edit"><span class="dashicons dashicons-edit"></span></a></td>         
     </tr>
    
 
