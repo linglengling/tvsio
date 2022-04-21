@@ -9,39 +9,45 @@
 error_reporting(E_ERROR | E_PARSE);
 global $wpdb;
 
-$querystr = "SELECT * FROM wp_blogs";
-$cpses = $wpdb->get_results($querystr, OBJECT);
-$CPS =  get_option('Blog_name');
-$queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
-$theprefix =  $wpdb->get_results($queryCPS, OBJECT);
-$theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
-$table = $theprefix.'automatic_camps';
-$querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
-$cplists = $wpdb->get_results($querystrsub, OBJECT);
-// wp_unschedule_hook('sendmail_cron'); ////////////////Chú ý mỏ cái này để reset thời gian mới cho cronjob. sau đó load trang này rồi khóa lại
-
-$querystr = "SELECT * FROM wp_blogs";
-$cpes = $wpdb->get_results($querystr, OBJECT);
-$cp = array();
-$webname = array();
-$theprefix = array();
-$k = 1;
-foreach ($cpes as $cpe){
-    $webname[$k] = $cpe->domain;
-    $theprefix[$k]  = "wp_".(($cpe->blog_id==1)?"":$cpe->blog_id."_");
-    $table = $theprefix[$k].'automatic_camps';
+if(is_multisite()){
+    $querystr = "SELECT * FROM wp_blogs";
+    $cpses = $wpdb->get_results($querystr, OBJECT);
+    $CPS =  get_option('Blog_name');
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
+    $table = $theprefix.'automatic_camps';
     $querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
-    $cp[$k] = $wpdb->get_results($querystrsub, OBJECT);
-    $k++;
-}
-$data_array = array ();
-for($j=1; $j<=$k; $j++){
-    foreach($cp[$j] as $item){
-        $temp = array ($webname[$j],$item->camp_name,$item->camp_post_content,lastpost($item->camp_id, $webname[$j]),crawlpost($item->camp_id, $webname[$j]),geteachtime($item->camp_id, $webname[$j]));
-        // var_dump($temp);
-        array_push($data_array,$temp );
+    $cplists = $wpdb->get_results($querystrsub, OBJECT);
+    // wp_unschedule_hook('sendmail_cron'); ////////////////Chú ý mỏ cái này để reset thời gian mới cho cronjob. sau đó load trang này rồi khóa lại
+    
+    $querystr = "SELECT * FROM wp_blogs";
+    $cpes = $wpdb->get_results($querystr, OBJECT);
+    $cp = array();
+    $webname = array();
+    $theprefix = array();
+    $k = 1;
+    foreach ($cpes as $cpe){
+        $webname[$k] = $cpe->domain;
+        $theprefix[$k]  = "wp_".(($cpe->blog_id==1)?"":$cpe->blog_id."_");
+        $table = $theprefix[$k].'automatic_camps';
+        $querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
+        $cp[$k] = $wpdb->get_results($querystrsub, OBJECT);
+        $k++;
     }
+    $data_array = array ();
+    for($j=1; $j<=$k; $j++){
+        foreach($cp[$j] as $item){
+            $temp = array ($webname[$j],$item->camp_name,$item->camp_post_content,lastpost($item->camp_id, $webname[$j]),crawlpost($item->camp_id, $webname[$j]),geteachtime($item->camp_id, $webname[$j]));
+            // var_dump($temp);
+            array_push($data_array,$temp );
+        }
+    }
+}else{
+    $querystrsub = "SELECT * FROM wp_automatic_camps WHERE camp_post_status = 'publish' ";
+    $data_array= $wpdb->get_results($querystrsub, OBJECT);
 }
+
 // echo  bloginfo( "url" );
 // var_dump($cplists);
 // sendmail_cron_implement();
@@ -101,7 +107,7 @@ for($j=1; $j<=$k; $j++){
 
     <?php  endforeach;?>
     <!-- xem tat ca -->
-    <?php if( get_option('Blog_name')=="mặc định"){foreach ($data_array as $record){
+    <?php if( get_option('Blog_name')=="mặc định" && is_multisite()):foreach ($data_array as $record):
     ?>
         <tr>
        
@@ -115,7 +121,24 @@ for($j=1; $j<=$k; $j++){
       </tr>
 
      <?php
-          }}
+         endforeach; else:foreach ($data_array as $item):
+     ?>
+ <tr>
+       
+       <td><?php echo bloginfo( 'name' ); ?></td>
+       <td><?php echo $item->camp_name	; ?></td>
+       <td><?php echo $item->camp_post_content	; ?></td>
+       <?php $temp = lastpost($item->camp_id,'NA');  
+      
+       ?>
+       <td style="<?php if(substr($temp,-4)=="stop"){echo 'background-color:#A4A4A4;';}?>"><?php echo substr($temp,0, strlen($temp)-4); ?></td>
+       <td><?php echo crawlpost($item->camp_id,'NA'); ?></td>
+       <td><?php echo geteachtime($item->camp_id,'NA'); ?></td>
+       <td><a target="_blank" href="/wp-admin/post.php?post=<?php echo ($item->camp_id);?>&action=edit"><span class="dashicons dashicons-edit"></span></a></td>         
+   </tr>
+
+        <?php
+         endforeach; endif;
      ?>
     </tbody>
     
