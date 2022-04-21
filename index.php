@@ -1177,9 +1177,9 @@ function sendmail_cron_implement(){
 
                 //Recipients
                 $mail->setFrom('vuvandai2024@gmail.com',$webname[1]);
-                $mail->addAddress('vnae88888886@gmail.com', 'admin'); 
-                // $mail->addAddress('tuuvv.uit@gmail.com', 'admin'); //get_option("tvs_email")
-                $mail->addCC('tuuvv.uit@gmail.com');
+                // $mail->addAddress('vnae88888886@gmail.com', 'admin'); 
+                $mail->addAddress('tuuvv.uit@gmail.com', 'admin'); //get_option("tvs_email")
+                // $mail->addCC('tuuvv.uit@gmail.com');
 
                 //Attachments
                 $mail->addAttachment($csvname , 'PBN-report-'.$webname[1].'.csv');           //Optional name

@@ -121,7 +121,7 @@ if(is_multisite()){
       </tr>
 
      <?php
-         endforeach; else:foreach ($data_array as $item):
+         endforeach; elseif( get_option('Blog_name')!=="mặc định" && is_multisite()): else: foreach ($data_array as $item):
      ?>
  <tr>
        
