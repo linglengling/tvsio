@@ -18,7 +18,7 @@ $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
 $table = $theprefix.'automatic_camps';
 $querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
 $cplists = $wpdb->get_results($querystrsub, OBJECT);
-// wp_unschedule_hook('sendmail_cron');
+// wp_unschedule_hook('sendmail_cron'); ////////////////Chú ý mỏ cái này để reset thời gian mới cho cronjob. sau đó load trang này rồi khóa lại
 
 $querystr = "SELECT * FROM wp_blogs";
 $cpes = $wpdb->get_results($querystr, OBJECT);

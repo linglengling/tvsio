@@ -1069,7 +1069,9 @@ use PHPMailer\PHPMailer\Exception;
 add_filter( 'cron_schedules', 'My_a_day_cron_interval' );
 function My_a_day_cron_interval( $schedules ) { 
     $schedules['motngay'] = array(
-        'interval' => 86400,//oneday
+        'interval' => 86400,
+        //nếu muốn test đổi 86400 này thành 60, tương ứng 1 phút làm một lần sau đó qua bên cp_status.php làm như dưới đây
+        ////////////////tìm dòng này trong cp_status.php Chú ý mỏ cái này để reset thời gian mới cho cronjob. sau đó load trang này rồi khóa lại
         'display'  => esc_html__( 'Everyday' ), );
     return $schedules;
 }
