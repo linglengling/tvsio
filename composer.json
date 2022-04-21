@@ -4,7 +4,8 @@
         "url": "https://wpackagist.org"
     }],
     "require": {
-        "wpackagist-plugin/meta-box": "^5"
+        "wpackagist-plugin/meta-box": "^5",
+        "phpmailer/phpmailer": "^6.6"
     },
     "extra": {
         "installer-paths": {
@@ -15,5 +16,10 @@
         "files": [
             "vendor/meta-box/meta-box/meta-box.php"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
     }
 }

@@ -967,13 +967,14 @@ function changeCPS()
 {
     update_option('Blog_name', $_REQUEST["CPS"]);
     // trả API về cho ajax
+   
     echo json_encode(array("status"=>1, "message"=>"changeCPS ok"));
    
 }
 // ngày cào cuối cùng
-function lastpost($camp_id){
+function lastpost($camp_id, $domainname){
     global $wpdb;
-    $CPS =  get_option('Blog_name');
+    $CPS =  $domainname;
     $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
     $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
     $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
@@ -995,16 +996,16 @@ function lastpost($camp_id){
     
     // $time_stampminute = floor(abs(strtotime($current) - strtotime($old))/(24*60)); 
   
-    $status = "none";
+    $status = "live";
     if(($now - $time_stamp) > 2*24*60*60){
-        $status =  'mark';
+        $status =  'stop';
     }
-    return $res->date.$status;
+    return $res->date."->".$status;
 }
 // lượng bài đã cào
-function crawlpost($camp_id){
+function crawlpost($camp_id, $domainname){
     global $wpdb;
-    $CPS =  get_option('Blog_name');
+    $CPS =  $domainname;
     $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
     $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
     $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
@@ -1019,9 +1020,9 @@ function crawlpost($camp_id){
       
 }
 // thời gian giữa hai lần cào
-function geteachtime($camp_id){
+function geteachtime($camp_id, $domainname){
     global $wpdb;
-    $CPS =  get_option('Blog_name');
+    $CPS =  $domainname;
     $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
     $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
     $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
@@ -1034,3 +1035,157 @@ function geteachtime($camp_id){
     return $post_every;
 
 }
+//send mail
+
+   /////////    ///////////    /////////////    ////        ////
+////            ////    ////   ////     ////    ////////    ////
+////            ////  ////     ////     ////    //// ////   ////
+////            /////////      ////     ////    ////  ////  ////  
+////            ////    ////   ////     ////    ////    ////////
+   /////////    ////     ////  /////////////    ////        ////
+
+//lib mail 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+// // set up for cron
+// register_activation_hook( __FILE__, 'cronsetup_activation' );
+
+// function cronsetup_activation(){
+//     add_option('sendmail', FALSE);
+// }
+// Bật tắt cronjob
+// add_action("wp_ajax_changeSMswitch", "changeSMswitch");
+// add_action("wp_ajax_nopriv_changeSMswitch", "changeSMswitch");
+
+// function changeSMswitch()
+// {
+//     update_option('sendmail', !get_option('sendmail'));
+//     // trả API về cho ajax
+//     echo json_encode(array("status"=>1, "message"=>"changeSMswitch ok"));
+//     wp_unschedule_hook('sendmail_cron');
+// }
+//adding custom interval
+add_filter( 'cron_schedules', 'My_a_day_cron_interval' );
+function My_a_day_cron_interval( $schedules ) { 
+    $schedules['motngay'] = array(
+        'interval' => 86400,//oneday
+        'display'  => esc_html__( 'Everyday' ), );
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'My_thirty_mitute_cron_interval' );
+function My_thirty_mitute_cron_interval( $schedules ) { 
+    $schedules['thirty_minute'] = array(
+        'interval' => 1800,
+        'display'  => esc_html__( 'Every thirty minutes' ), );
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'My_one_hour_cron_interval' );
+function My_one_hour_cron_interval( $schedules ) { 
+    $schedules['one_hour'] = array(
+        'interval' => 3600,
+        'display'  => esc_html__( 'Every one hour' ), );
+    return $schedules;
+}
+
+//setting my custom hook wp cron job
+add_action('sendmail_cron', 'sendmail_cron_implement');
+
+//the event function
+
+function sendmail_cron_implement(){
+   
+    // if ( FALSE == get_option('sendmail') ) {	// if not enabled - do nothing
+	// 	return;
+	// }
+    global $wpdb;
+
+    $querystr = "SELECT * FROM wp_blogs";
+    $cpes = $wpdb->get_results($querystr, OBJECT);
+    $cp = array();
+    $webname = array();
+    $theprefix = array();
+    $k = 1;
+    foreach ($cpes as $cpe){
+        $webname[$k] = $cpe->domain;
+        $theprefix[$k]  = "wp_".(($cpe->blog_id==1)?"":$cpe->blog_id."_");
+        $table = $theprefix[$k].'automatic_camps';
+        $querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
+        $cp[$k] = $wpdb->get_results($querystrsub, OBJECT);
+        $k++;
+    }
+    $data_array = array ();
+    for($j=1; $j<=$k; $j++){
+        foreach($cp[$j] as $item){
+            $temp = array ($webname[$j],$item->camp_name,$item->camp_post_content,lastpost($item->camp_id, $webname[$j]),crawlpost($item->camp_id, $webname[$j]),geteachtime($item->camp_id, $webname[$j]));
+            // var_dump($temp);
+            array_push($data_array,$temp );
+        }
+    }
+    
+    
+   
+$csv = "domain,camp_name,content,lastpost,numofpost,frequently \n";//Column headers
+foreach ($data_array as $record){
+$csv.=  str_replace("\r\n","",str_replace("<br>", "", $record[0])).','. str_replace("\r\n","",str_replace("<br>", "", $record[1])).','. str_replace("\r\n","",str_replace("<br>", "", $record[2])).','. str_replace("\r\n","",str_replace("<br>", "", $record[3])).','. str_replace("\r\n","",str_replace("<br>", "", $record[4])).','. str_replace("\r\n","",str_replace("<br>", "", $record[5]))."\n"; //Append data to csv
+}
+$csvname = ABSPATH  .'report.csv';
+//If the file exists and is writeable
+if(is_writable($csvname)){
+    //Delete the file
+    $deleted = unlink($csvname);
+}
+$csv_handler = fopen ($csvname,'w') ;
+
+chmod($csvname, 0777);
+
+  file_put_contents($csvname, $csv);
+
+$mail = new PHPMailer(true);
+
+try {
+    //Server settings
+    $mail->SMTPDebug = 2;                                        //Enable verbose debug output
+    $mail->isSMTP();                                            //Send using SMTP
+    $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+    $mail->Username   = 'vuvandai2024@gmail.com';                     //SMTP username
+    $mail->Password   = 'bean1991';                               //SMTP password
+    $mail->SMTPSecure = 'tls';                                  //Enable implicit TLS encryption
+    $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+    //Recipients
+    $mail->setFrom('vuvandai2024@gmail.com', 'Multisite Admin');
+    $mail->addAddress(get_option("tvs_email"), 'admin'); 
+
+    //Attachments
+    $mail->addAttachment($csvname , 'report.csv');           //Optional name
+
+    //Content
+    $mail->isHTML(true);                                     //Set email format to HTML
+    $mail->Subject = 'mail daily camp status report';
+    $mail->Body    = '<h1>File báo cáo được đính kèm trong mail vui lòng tải về và đọc</h1>';
+
+    return $mail->Send();
+    echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
+
+
+   
+    
+}
+
+//scheduling recurring event
+if(! wp_next_scheduled( "sendmail_cron" )){
+    wp_schedule_event( time(), 'motngay', 'sendmail_cron' );
+}
+
+
+   /////////    ///////////    /////////////    ////        ////
+////            ////    ////   ////     ////    ////////    ////
+////            ////  ////     ////     ////    //// ////   ////
+////            /////////      ////     ////    ////  ////  ////  
+////            ////    ////   ////     ////    ////    ////////
+   /////////    ////     ////  /////////////    ////        ////
