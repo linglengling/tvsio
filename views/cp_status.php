@@ -42,9 +42,9 @@ for($j=1; $j<=$k; $j++){
         array_push($data_array,$temp );
     }
 }
-
+// echo  bloginfo( "url" );
 // var_dump($cplists);
-
+// sendmail_cron_implement();
 
 ?>
 

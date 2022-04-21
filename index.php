@@ -1035,6 +1035,7 @@ function geteachtime($camp_id, $domainname){
     return $post_every;
 
 }
+
 //send mail
 
    /////////    ///////////    /////////////    ////        ////
@@ -1069,7 +1070,7 @@ use PHPMailer\PHPMailer\Exception;
 add_filter( 'cron_schedules', 'My_a_day_cron_interval' );
 function My_a_day_cron_interval( $schedules ) { 
     $schedules['motngay'] = array(
-        'interval' => 86400,
+        'interval' =>86400,
         //nếu muốn test đổi 86400 này thành 60, tương ứng 1 phút làm một lần sau đó qua bên cp_status.php làm như dưới đây
         ////////////////tìm dòng này trong cp_status.php Chú ý mỏ cái này để reset thời gian mới cho cronjob. sau đó load trang này rồi khóa lại
         'display'  => esc_html__( 'Everyday' ), );
@@ -1097,9 +1098,7 @@ add_action('sendmail_cron', 'sendmail_cron_implement');
 
 function sendmail_cron_implement(){
    
-    // if ( FALSE == get_option('sendmail') ) {	// if not enabled - do nothing
-	// 	return;
-	// }
+   
     global $wpdb;
 
     $querystr = "SELECT * FROM wp_blogs";
@@ -1125,55 +1124,62 @@ function sendmail_cron_implement(){
         }
     }
     
-    
    
-$csv = "domain,camp_name,content,lastpost,numofpost,frequently \n";//Column headers
-foreach ($data_array as $record){
-$csv.=  str_replace("\r\n","",str_replace("<br>", "", $record[0])).','. str_replace("\r\n","",str_replace("<br>", "", $record[1])).','. str_replace("\r\n","",str_replace("<br>", "", $record[2])).','. str_replace("\r\n","",str_replace("<br>", "", $record[3])).','. str_replace("\r\n","",str_replace("<br>", "", $record[4])).','. str_replace("\r\n","",str_replace("<br>", "", $record[5]))."\n"; //Append data to csv
-}
-$csvname = ABSPATH  .'report.csv';
-//If the file exists and is writeable
-if(is_writable($csvname)){
-    //Delete the file
-    $deleted = unlink($csvname);
-}
-$csv_handler = fopen ($csvname,'w') ;
+    if( get_current_blog_id() === 1 ){
+        // Return something if the site ID matches the number one...
+           
+            
+            $csv = "domain,camp_name,content,lastpost,numofpost,frequently \n";//Column headers
+            foreach ($data_array as $record){
+            $csv.=  str_replace("\r\n","",str_replace("<br>", "", $record[0])).','. str_replace("\r\n","",str_replace("<br>", "", $record[1])).','. str_replace("\r\n","",str_replace("<br>", "", $record[2])).','. str_replace("\r\n","",str_replace("<br>", "", $record[3])).','. str_replace("\r\n","",str_replace("<br>", "", $record[4])).','. str_replace("\r\n","",str_replace("<br>", "", $record[5]))."\n"; //Append data to csv
+            }
+            $csvname = ABSPATH  .'report.csv';
+            //If the file exists and is writeable
+            if(is_writable($csvname)){
+                //Delete the file
+                $deleted = unlink($csvname);
+            }
+            $csv_handler = fopen ($csvname,'w') ;
 
-chmod($csvname, 0777);
+            chmod($csvname, 0777);
 
-  file_put_contents($csvname, $csv);
+            file_put_contents($csvname, $csv);
 
-$mail = new PHPMailer(true);
+            $mail = new PHPMailer(true);
 
-try {
-    //Server settings
-    $mail->SMTPDebug = 2;                                        //Enable verbose debug output
-    $mail->isSMTP();                                            //Send using SMTP
-    $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
-    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-    $mail->Username   = 'vuvandai2024@gmail.com';                     //SMTP username
-    $mail->Password   = 'bean1991';                               //SMTP password
-    $mail->SMTPSecure = 'tls';                                  //Enable implicit TLS encryption
-    $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            try {
+                //Server settings
+                $mail->SMTPDebug = 2;                                        //Enable verbose debug output
+                $mail->isSMTP();                                            //Send using SMTP
+                $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                $mail->Username   = 'vuvandai2024@gmail.com';                     //SMTP username
+                $mail->Password   = 'bean1991';                               //SMTP password
+                $mail->SMTPSecure = 'tls';                                  //Enable implicit TLS encryption
+                $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
-    //Recipients
-    $mail->setFrom('vuvandai2024@gmail.com', 'Multisite Admin');
-    $mail->addAddress(get_option("tvs_email"), 'admin'); 
+                //Recipients
+                $mail->setFrom('vuvandai2024@gmail.com',$webname[1]);
+                $mail->addAddress('vnae88888886@gmail.com', 'admin'); 
+                // $mail->addAddress('tuuvv.uit@gmail.com', 'admin'); //get_option("tvs_email")
+                $mail->addCC('tuuvv.uit@gmail.com');
 
-    //Attachments
-    $mail->addAttachment($csvname , 'report.csv');           //Optional name
+                //Attachments
+                $mail->addAttachment($csvname , 'report.csv');           //Optional name
 
-    //Content
-    $mail->isHTML(true);                                     //Set email format to HTML
-    $mail->Subject = 'mail daily camp status report';
-    $mail->Body    = '<h1>File báo cáo được đính kèm trong mail vui lòng tải về và đọc</h1>';
+                //Content
+                $mail->isHTML(true);                                     //Set email format to HTML
+                $mail->Subject = 'mail daily camp status report';
+                $mail->Body    = '<h1>File báo cáo được đính kèm trong mail vui lòng tải về và đọc</h1>';
 
-    return $mail->Send();
-    echo 'Message has been sent';
-    } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                return $mail->Send();
+                echo 'Message has been sent';
+                } catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+
     }
-
+ 
 
    
     
