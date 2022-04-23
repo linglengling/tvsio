@@ -480,7 +480,10 @@ function get_info_post( $post_id) {
     if ( wp_is_post_revision( $post_id ) ) {
         return;
         }
-    
+    // Not set for post_status = dralf
+    if ( get_post($post_id)->post_status == 'pending' || get_post($post_id)->post_status == 'draft' ) {
+        return;
+    }
     global $wpdb;
     $table = $wpdb->prefix.'statusdata';
     $querystr  = "SELECT *  FROM $table WHERE post_id  = 0";
@@ -851,6 +854,10 @@ function get_info_post_autolink( $post_id) {
      
         // Only set for post_type = post!
         if ( 'post' !== get_post_type($post_id) ) {
+            return;
+        }
+        // Not set for post_status = dralf
+        if ( get_post($post_id)->post_status == 'pending' || get_post($post_id)->post_status == 'draft' ) {
             return;
         }
         // If this is just a revision then do no thing
