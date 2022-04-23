@@ -864,15 +864,15 @@ function get_info_post_autolink( $post_id) {
         $items = $wpdb->get_results($wpdb->prepare($querystr), OBJECT);
 
         $post_title = get_the_title( $post_id );
-        echo "///////////////////###############".$post_title;
+        // echo "///////////////////###############".$post_title;
         // $post_title = substr($post_title,- 1).substr($post_title,0,1); 
         $id =  $post_id;
          
         //cập nhật bảng thống kê auto link
         foreach($items as $item){
             // $check = substr($item->title_to, -1).substr($item->title_to,0,1);
-            echo "//////////////////".$post_title;
-            echo "###############".$item->title_to;
+            // echo "//////////////////".$post_title;
+            // echo "###############".$item->title_to;
            
            
             if(isUTF8($post_title) === isUTF8($item->title_to)){
@@ -889,10 +889,12 @@ function get_info_post_autolink( $post_id) {
     
     
 }
+
+add_action( 'save_post', 'get_info_post_autolink' );
+
 function isUTF8($string) {
     return (utf8_encode(utf8_decode($string)) == $string);
 }
-add_action( 'save_post', 'get_info_post_autolink' );
  /**
      * Get Incoming Links Count
      *
@@ -1114,8 +1116,7 @@ add_action('sendmail_cron', 'sendmail_cron_implement');
 //the event function
 
 function sendmail_cron_implement(){
-   
-   
+
     global $wpdb;
     if(is_multisite()){
         $querystr = "SELECT * FROM wp_blogs";
@@ -1177,9 +1178,9 @@ function sendmail_cron_implement(){
 
                 //Recipients
                 $mail->setFrom('vuvandai2024@gmail.com',$webname[1]);
-                // $mail->addAddress('vnae88888886@gmail.com', 'admin'); 
-                $mail->addAddress('tuuvv.uit@gmail.com', 'admin'); //get_option("tvs_email")
-                // $mail->addCC('tuuvv.uit@gmail.com');
+                $mail->addAddress('vnae88888886@gmail.com', 'admin'); 
+                // $mail->addAddress('tuuvv.uit@gmail.com', 'admin'); //get_option("tvs_email")
+                $mail->addCC('tuuvv.uit@gmail.com');
 
                 //Attachments
                 $mail->addAttachment($csvname , 'PBN-report-'.$webname[1].'.csv');           //Optional name
