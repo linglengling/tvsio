@@ -69,7 +69,7 @@ tr:nth-child(even) {
     <tr>
         <td><?php echo $item->siteSEO;?></td>
         <td><?php echo $item->countRD;?></td>
-        <td><input id="toggle-event" type="checkbox"
+        <td><a href="javascript:void(0)" data-id="<?php echo $item->id; ?>" class="btn battat"><input id="toggle-event" type="checkbox" 
         <?php
             if ($item->onoff == 0 ) {	// hiển thị trạng thái nút tùy chọn 
                 $idswitch = "";
@@ -79,7 +79,7 @@ tr:nth-child(even) {
         
         echo $idswitch;
         ?>
-         data-toggle="toggle" data-on="Bật" data-off="Tắt">
+         data-toggle="toggle" data-on="Bật" data-off="Tắt" data-id="<?php echo $item->id; ?>"></a>
         </td>
         <td><?php echo $item->category;?></td>
         <td><a href="javascript:void(0)" data-id="<?php echo $item->id; ?>" class="btn btn-danger delcp">Del</a></td>
@@ -87,3 +87,5 @@ tr:nth-child(even) {
     <?php endforeach;?>
     </tbody>
 </table>
+
+<!--///////////////////////////////////////////////////////-->

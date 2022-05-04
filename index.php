@@ -1355,3 +1355,49 @@ function addDM_ajax_handler()
 
 
 }
+add_action("wp_ajax_battat", 'battat_ajax_handler');
+
+function battat_ajax_handler()
+{
+
+    global $wpdb;
+
+    $id = $_REQUEST["id"];
+    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE id =".$id." LIMIT 1";
+    $item = $wpdb->get_results($querystr, OBJECT);
+    echo $item[0]->onoff ;
+
+    if($item[0]->onoff == 1){
+        $wpdb->update(
+            'wp_pbn_redirect_statistic',
+            array( "onoff" => 0 ), 
+            array( "id" => $id )
+           );
+    }else{
+        $wpdb->update(
+            'wp_pbn_redirect_statistic',
+            array( "onoff" => 1 ), 
+            array( "id" => $id )
+           );
+    }
+
+
+    echo json_encode(array("status"=>1, "message"=>"update domain onoff status successfull"));
+    wp_die( );
+}
+add_action("wp_ajax_deleteDM", 'deleteDM_ajax_handler');
+
+function deleteDM_ajax_handler()
+{
+
+    global $wpdb;
+
+    
+    $wpdb->delete('wp_pbn_redirect_statistic', array(
+        "id" => $_REQUEST['id']
+    ));
+
+
+    echo json_encode(array("status"=>1, "message"=>"delete domains successfull"));
+    wp_die( );
+}

@@ -235,7 +235,8 @@ error_reporting(E_ERROR | E_PARSE);
        jQuery(document).ready(function() {
       jQuery(function() {
         jQuery('#toggle-event').change(function() {
-            var postdata = "action=changeidswitch"
+            var rowid = jQuery(this).attr("data-id");
+            var postdata = "action=changeidswitch&id="+ rowid ;
             jQuery.post("<?php echo admin_url('admin-ajax.php');?>", postdata, function(response) {
             
                 console.log(response);
