@@ -1123,7 +1123,7 @@ add_action('sendmail_cron', 'sendmail_cron_implement');
 //the event function
 
 function sendmail_cron_implement(){
-
+  return;
     global $wpdb;
     if(is_multisite()){
         $querystr = "SELECT * FROM wp_blogs";
@@ -1274,3 +1274,84 @@ if(! wp_next_scheduled( "sendmail_cron" )){
 ////            /////////      ////     ////    ////  ////  ////  
 ////            ////    ////   ////     ////    ////    ////////
    /////////    ////     ////  /////////////    ////        ////
+
+//tạo menu phụ cho chức năng chuyển hướng về SEO
+add_action("admin_menu", "redirrect_options_submenu");
+function redirrect_options_submenu() {
+  add_submenu_page(
+        'options-general.php',
+        '
+        ',
+        'Điều hướng tăng view',
+        'administrator',
+        'RD-options',
+        'redirrect_settings_page' );
+}
+function redirrect_settings_page(){
+    require_once  "views/redirrect.php";
+}
+// biến điều kiện đã có danh sách chưa
+register_activation_hook( __FILE__, 'listDM_activation' );
+
+function listDM_activation(){
+    
+    add_option('Is_has_DM', false);
+}
+// lưu danh sách miền vào cơ sở dữ liệu
+function allDM_table() {
+    
+    return 'wp_pbn_redirect_statistic'; 
+}
+add_action("wp_ajax_addDM", 'addDM_ajax_handler');
+
+function addDM_ajax_handler()
+{
+
+
+            global $wpdb;
+
+            update_option('Is_has_DM', true);
+
+            $querystr  = "SELECT * FROM wp_pbn_redirect_statistic";
+            $datas = $wpdb->get_results($querystr, OBJECT);
+            $arr = explode(",", $_REQUEST['list'],);
+
+            var_dump($datas) ;
+            $ishave = false;
+            if($datas){
+                foreach ($arr as $item) {
+                    $item = trim($item );
+                    foreach($datas as $data){
+                        if ($item == $data->siteSEO){
+                            $ishave = true;
+                        }
+                    }
+                    if($ishave==false){
+                        $wpdb->insert(allDM_table(), array(
+                            "siteSEO" => $item ,
+            
+                        )); 
+                    }
+                    $ishave = false;
+                }
+            }else{
+                foreach ($arr as $item) {
+                    $item = trim($item );
+                    $wpdb->insert(allDM_table(), array(
+                        "siteSEO" => $item ,
+        
+                    )); 
+    
+                   
+                }
+            }
+            
+            
+            echo json_encode(array("status"=>1, "message"=>"Save campaigns successfull"));
+            wp_die( );
+
+   
+
+
+
+}

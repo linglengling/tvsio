@@ -2,6 +2,7 @@
 
 function postAPISEO($data, $APIKey) {
     $url = "http://internationalsamuel.com/APISEOTOOL/public/index.php/api/".$APIKey;
+    
     // $url = "http://demo.test/public/index.php/api/".$APIKey;
 
     // $data = array("text" => $text);

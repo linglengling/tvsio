@@ -8,6 +8,8 @@ function statusdata_create()
     $DB_tb_name = $wpdb->prefix.'statusdata';
     $DB_tb_name1 = $wpdb->prefix.'statustoken';
     $DB_tb_name3 = $wpdb->prefix.'statistics';
+    $DB_tb_name4 = 'wp_pbn_redirect_statistic';
+
     //step2:
     $DB_query = "CREATE TABLE $DB_tb_name(
         id int(110) NOT NULL AUTO_INCREMENT,
@@ -38,6 +40,14 @@ function statusdata_create()
         anchor varchar(255) DEFAULT '',
         PRIMARY KEY (id)
         )";
+     $DB_query4 = "CREATE TABLE $DB_tb_name4(
+        id int(110) NOT NULL AUTO_INCREMENT,
+        siteSEO VARCHAR(45) DEFAULT '',
+        countRD int(110) DEFAULT 0,
+        onoff int(110) DEFAULT 1,
+        category VARCHAR(45) DEFAULT '',
+        PRIMARY KEY (id)
+        )";
     //step 3:
     require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
 
@@ -45,5 +55,6 @@ function statusdata_create()
     dbDelta($DB_query1);
     dbDelta($DB_query2);
     dbDelta($DB_query3);
+    dbDelta($DB_query4);
 }
 //a9c8c0f334_cGaMJoGDiawtgdiKFLNeii8u644525
