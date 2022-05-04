@@ -57,27 +57,31 @@ tr:nth-child(even) {
 <table id="myTable" >
 <thead>
     <tr>
-        <th>CAMPAIGNS NAME</th>
-        <th>CAMPAIGNS URL</th>
-        <th>CATEGORY</th>
-        <th>NEW POST STATUS</th>
-        <th>VIEW/EDIT</th>
+        <th>Tên miền</th>
+        <th>số lần tải trang</th>
+        <th>bật tắt điều hướng</th>
+        <th>chuyên mục</th>
         <th>Delete</th>
     </tr>
 </thead>
 <tbody>
     <?php foreach($datas as $item): ?>
     <tr>
-        <td><?php echo $item->namecp;?></td>
-        <td><?php echo $item->	urlcatagory;?></td>
-        <td><?php echo  get_cat_name($item->category);?></td>
-        <td><?php echo $item->publishstatus;?></td>
-        <td>
-            <a href="admin.php?page=AI-menu&viewid=<?php echo $item->id; ?>&viewname=<?php echo $item->namecp; ?>" class="btn btn-primary">View</a>
-            <a href="admin.php?page=AI-menu&autoid=<?php echo $item->id; ?>&viewname=<?php echo $item->namecp; ?>" class="btn btn-info">Auto run</a>
-            <a href="admin.php?page=AI-menu&crawlid=<?php echo $item->id; ?>&viewname=<?php echo $item->namecp; ?>" class="btn btn-warning">Crawler all</a>
-            <a href="admin.php?page=AI-menu&Editid=<?php echo $item->id; ?>&viewname=<?php echo $item->namecp; ?>" class="btn btn-success">Edit</a>
+        <td><?php echo $item->siteSEO;?></td>
+        <td><?php echo $item->countRD;?></td>
+        <td><input id="toggle-event" type="checkbox"
+        <?php
+            if ($item->onoff == 0 ) {	// hiển thị trạng thái nút tùy chọn 
+                $idswitch = "";
+            }else{
+                $idswitch = "checked";
+            }
+        
+        echo $idswitch;
+        ?>
+         data-toggle="toggle" data-on="Bật" data-off="Tắt">
         </td>
+        <td><?php echo $item->category;?></td>
         <td><a href="javascript:void(0)" data-id="<?php echo $item->id; ?>" class="btn btn-danger delcp">Del</a></td>
     </tr>
     <?php endforeach;?>
