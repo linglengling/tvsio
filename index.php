@@ -984,17 +984,11 @@ function changeCPS()
 function lastpost($camp_id, $domainname){
     global $wpdb;
     $CPS =  $domainname;
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
     @$key='Posted:'.$camp_id;
-    if($CPS !== "NA"){
-        $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
-        $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
-        $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
-       
-        $table = $theprefix.'automatic_log';
-    }else{
-        $table = 'wp_automatic_log';
-    }
-   
+    $table = $theprefix.'automatic_log';
     //getting count from wplb_log
     $query="SELECT `date`  FROM  $table WHERE action ='$key'  ORDER BY `date` DESC LIMIT 1";
     $ress= $wpdb->get_results($query, OBJECT);
@@ -1021,17 +1015,11 @@ function lastpost($camp_id, $domainname){
 function crawlpost($camp_id, $domainname){
     global $wpdb;
     $CPS =  $domainname;
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
     @$key='Posted:'.$camp_id;
-    if($CPS !== "NA"){
-        $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
-        $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
-        $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
-      
-        $table = $theprefix.'automatic_log';
-    }else{
-        $table = 'wp_automatic_log';
-    }
-    
+    $table = $theprefix.'automatic_log';
     //getting count from wplb_log
     $query="SELECT COUNT(`id`) as numpost FROM  $table WHERE action ='$key'";
     $res= $wpdb->get_results($query, OBJECT);
@@ -1044,15 +1032,10 @@ function crawlpost($camp_id, $domainname){
 function geteachtime($camp_id, $domainname){
     global $wpdb;
     $CPS =  $domainname;
-    if($CPS !== "NA"){
-        $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
-        $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
-        $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
-        $table = $theprefix.'automatic_camps';
-    }else{
-        $table = 'wp_automatic_camps';
-    }
-   
+    $queryCPS = "SELECT * FROM `wp_blogs` WHERE domain ='$CPS'";
+    $theprefix =  $wpdb->get_results($queryCPS, OBJECT);
+    $theprefix = "wp_".(($theprefix[0]->blog_id==1)?"":$theprefix[0]->blog_id."_");
+    $table = $theprefix.'automatic_camps';
     $querycp = "SELECT * FROM $table WHERE camp_id = $camp_id ";
     $cp =   $wpdb->get_results($querycp, OBJECT);
     $camp_general = $cp[0]->camp_general;
@@ -1125,32 +1108,32 @@ add_action('sendmail_cron', 'sendmail_cron_implement');
 function sendmail_cron_implement(){
   return;
     global $wpdb;
-    if(is_multisite()){
-        $querystr = "SELECT * FROM wp_blogs";
-        $cpes = $wpdb->get_results($querystr, OBJECT);
-        $cp = array();
-        $webname = array();
-        $theprefix = array();
-        $k = 1;
-        foreach ($cpes as $cpe){
-            $webname[$k] = $cpe->domain;
-            $theprefix[$k]  = "wp_".(($cpe->blog_id==1)?"":$cpe->blog_id."_");
-            $table = $theprefix[$k].'automatic_camps';
-            $querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
-            $cp[$k] = $wpdb->get_results($querystrsub, OBJECT);
-            $k++;
+
+    $querystr = "SELECT * FROM wp_blogs";
+    $cpes = $wpdb->get_results($querystr, OBJECT);
+    $cp = array();
+    $webname = array();
+    $theprefix = array();
+    $k = 1;
+    foreach ($cpes as $cpe){
+        $webname[$k] = $cpe->domain;
+        $theprefix[$k]  = "wp_".(($cpe->blog_id==1)?"":$cpe->blog_id."_");
+        $table = $theprefix[$k].'automatic_camps';
+        $querystrsub = "SELECT * FROM $table WHERE camp_post_status = 'publish' ";
+        $cp[$k] = $wpdb->get_results($querystrsub, OBJECT);
+        $k++;
+    }
+    $data_array = array ();
+    for($j=1; $j<=$k; $j++){
+        foreach($cp[$j] as $item){
+            $temp = array ($webname[$j],$item->camp_name,$item->camp_post_content,lastpost($item->camp_id, $webname[$j]),crawlpost($item->camp_id, $webname[$j]),geteachtime($item->camp_id, $webname[$j]));
+            // var_dump($temp);
+            array_push($data_array,$temp );
         }
-        $data_array = array ();
-        for($j=1; $j<=$k; $j++){
-            foreach($cp[$j] as $item){
-                $temp = array ($webname[$j],$item->camp_name,$item->camp_post_content,lastpost($item->camp_id, $webname[$j]),crawlpost($item->camp_id, $webname[$j]),geteachtime($item->camp_id, $webname[$j]));
-                // var_dump($temp);
-                array_push($data_array,$temp );
-            }
-        }
-        
+    }
+    
    
-        if( get_current_blog_id() === 1 ){
+    if( get_current_blog_id() === 1 ){
         // Return something if the site ID matches the number one...
            
             
@@ -1158,7 +1141,7 @@ function sendmail_cron_implement(){
             foreach ($data_array as $record){
             $csv.=  str_replace("\r\n","",str_replace("<br>", "", $record[0])).','. str_replace("\r\n","",str_replace("<br>", "", $record[1])).','. str_replace("\r\n","",str_replace("<br>", "", $record[2])).','. str_replace("\r\n","",str_replace("<br>", "", $record[3])).','. str_replace("\r\n","",str_replace("<br>", "", $record[4])).','. str_replace("\r\n","",str_replace("<br>", "", $record[5]))."\n"; //Append data to csv
             }
-            $csvname = ABSPATH .'PBN-report-'.$webname[1].'.csv';
+            $csvname = ABSPATH  .'report.csv';
             //If the file exists and is writeable
             if(is_writable($csvname)){
                 //Delete the file
@@ -1190,7 +1173,7 @@ function sendmail_cron_implement(){
                 $mail->addCC('tuuvv.uit@gmail.com');
 
                 //Attachments
-                $mail->addAttachment($csvname , 'PBN-report-'.$webname[1].'.csv');           //Optional name
+                $mail->addAttachment($csvname , 'report.csv');           //Optional name
 
                 //Content
                 $mail->isHTML(true);                                     //Set email format to HTML
@@ -1203,62 +1186,10 @@ function sendmail_cron_implement(){
                     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
                 }
 
-         }
+    }
  
 
-    }else{
-        $querystrsub = "SELECT * FROM wp_automatic_camps WHERE camp_post_status = 'publish' ";
-        $data_array= $wpdb->get_results($querystrsub, OBJECT);
-        $csv = "domain,camp_name,content,lastpost,numofpost,frequently \n";//Column headers
-        foreach ($data_array as $item){
-        $csv.= get_option('blogname').','. $item->camp_name.','. str_replace("\r\n","",str_replace("<br>", "", $item->camp_post_content)).','. str_replace("\r\n","",str_replace("<br>", "", lastpost($item->camp_id,"NA"))).','. str_replace("\r\n","",str_replace("<br>", "",crawlpost($item->camp_id,"NA"))).','. str_replace("\r\n","",str_replace("<br>", "",geteachtime($item->camp_id,"NA")))."\n"; //Append data to csv
-        }
-        $csvname = ABSPATH  .get_option('blogname').'report.csv';
-        //If the file exists and is writeable
-        if(is_writable($csvname)){
-            //Delete the file
-            $deleted = unlink($csvname);
-        }
-        $csv_handler = fopen ($csvname,'w') ;
-
-        chmod($csvname, 0777);
-
-        file_put_contents($csvname, $csv);
-
-        $mail = new PHPMailer(true);
-
-        try {
-            //Server settings
-            $mail->SMTPDebug = 2;                                        //Enable verbose debug output
-            $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-            $mail->Username   = 'vuvandai2024@gmail.com';                     //SMTP username
-            $mail->Password   = 'bean1991';                               //SMTP password
-            $mail->SMTPSecure = 'tls';                                  //Enable implicit TLS encryption
-            $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-            $webname = get_option('blogname');
-            //Recipients
-            $mail->setFrom('vuvandai2024@gmail.com',$webname);
-            $mail->addAddress('vnae88888886@gmail.com', 'admin'); 
-            // $mail->addAddress('tuuvv.uit@gmail.com', 'admin'); //get_option("tvs_email")
-            $mail->addCC('tuuvv.uit@gmail.com');
-
-            //Attachments
-            $mail->addAttachment($csvname , get_option('blogname').'report.csv');           //Optional name
-
-            //Content
-            $mail->isHTML(true);                                     //Set email format to HTML
-            $mail->Subject = 'mail daily camp status report';
-            $mail->Body    = '<h1>File báo cáo được đính kèm trong mail vui lòng tải về và đọc</h1>';
-
-            return $mail->Send();
-            echo 'Message has been sent';
-            } catch (Exception $e) {
-                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            }
-
-    }
+   
     
 }
 
