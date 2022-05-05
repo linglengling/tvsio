@@ -21,7 +21,7 @@ jQuery(document).ready(function() {
    }, 3000);
 
 /////////////////////////Lấy ngẫu nhiên một tên miền ra//////////////////////////////////////////////////
-
+if(ishaveDM == 1){
    var tempDM = "";
  function getrandDM(){
    var postdata = "action=getrandDM";
@@ -111,5 +111,5 @@ function getCookie(cname) {
 
    setCookie("RDcoockie", "available", 2);
 //////////////////////////////////////
-
+  }
 });
