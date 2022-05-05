@@ -8,6 +8,21 @@
  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
  
+
+
+ <label class="control-label col-sm-6" for="cars">chọn thời gian điều hướng(time hiện tại:<?php  echo get_option( 'timeRD') ?>milisecond)</label>
+
+<select id="timeRD" class="control-label col-sm-6">
+
+  <option value="5000"> chưa chọn</option>
+  <option value="5000"> 5 giây</option>
+  <option value="6000"> 6 giây</option>
+  <option value="7000"> 7 giây</option>
+  <option value="8000"> 8 giây</option>
+  <option value="9000"> 9 giây</option>
+  <option value="10000"> 10 giây</option>
+  
+</select>
 <form action='javascript:void(0)' method="post" id='listDM'>
         <div class="form-group">
             <label class="control-label col-sm-12" >Nhập danh sách tên miền tại đây:(lưu ý các tên miền cách nhau bởi một dấu phẩy)</label>

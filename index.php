@@ -1227,6 +1227,7 @@ register_activation_hook( __FILE__, 'listDM_activation' );
 function listDM_activation(){
     
     add_option('Is_has_DM', false);
+    add_option('timeRD', 5000);
 }
 // lưu danh sách miền vào cơ sở dữ liệu
 function allDM_table() {
@@ -1286,6 +1287,8 @@ function addDM_ajax_handler()
 
 
 }
+
+///////// bậy tắt điều hướng cho tên miền
 add_action("wp_ajax_battat", 'battat_ajax_handler');
 
 function battat_ajax_handler()
@@ -1316,6 +1319,8 @@ function battat_ajax_handler()
     echo json_encode(array("status"=>1, "message"=>"update domain onoff status successfull"));
     wp_die( );
 }
+
+///////////// xóa miền............................
 add_action("wp_ajax_deleteDM", 'deleteDM_ajax_handler');
 
 function deleteDM_ajax_handler()
@@ -1330,5 +1335,82 @@ function deleteDM_ajax_handler()
 
 
     echo json_encode(array("status"=>1, "message"=>"delete domains successfull"));
+    wp_die( );
+}
+/////////////////// chọn thời gian điều hướng./////////////////////////////////////
+add_action("wp_ajax_timeRD", 'timeRD_ajax_handler');
+
+function timeRD_ajax_handler()
+{
+    update_option('timeRD',  $_REQUEST['time']);
+
+    echo json_encode(array("status"=>1, "message"=>"ok"));
+    wp_die( );
+}
+/////////////////////////  wp_localize_script( 'ajax-script', 'my_ajax_object',
+add_action('wp_head', 'myplugin_ajaxurl');
+
+function myplugin_ajaxurl() {
+
+   echo '<script type="text/javascript">
+           var ajaxurl = "' . admin_url('admin-ajax.php') . '";
+         </script>';
+}
+add_action( 'wp_enqueue_scripts', 'wpshare247_register_scripts' );
+function wpshare247_register_scripts() {
+    wp_enqueue_script( 'my_custom_2.js', plugins_url('redirect.js',__FILE__ ) , array(), '1.0', true );
+}
+/////////////////////////kiểm tra có danh sách miền hay chưa//////////////////////////////
+
+add_action("wp_ajax_getishaveDM", 'getishaveDM_ajax_handler');
+add_action("wp_ajax_nopriv_getishaveDM", 'getishaveDM_ajax_handler');
+
+function getishaveDM_ajax_handler()
+{
+
+
+    echo json_encode(array("status"=>1, "message"=> get_option('Is_has_DM')));
+    wp_die( );
+}
+//////////////////////////////lấy một miền ngẫu nhiên có trạng thái bật//////////////////////////////
+add_action("wp_ajax_getrandDM", 'getrandDM_ajax_handler');
+add_action("wp_ajax_nopriv_getrandDM", 'getrandDM_ajax_handler');
+
+function getrandDM_ajax_handler()
+{
+    global $wpdb;
+
+   
+    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE onoff = 1 ORDER BY RAND() LIMIT 1";
+    $items = $wpdb->get_results($querystr, OBJECT);
+   
+    echo json_encode(array("status"=>1, "message"=> $items[0]->siteSEO));
+    wp_die( );
+}
+////////////////////////////// lấy thời gian điều hướng hiện tại//////////////////////////////
+add_action("wp_ajax_getimeRD", 'getimeRD_ajax_handler');
+add_action("wp_ajax_nopriv_getimeRD", 'getimeRD_ajax_handler');
+
+function getimeRD_ajax_handler()
+{
+
+    echo json_encode(array("status"=>1, "message"=> get_option('timeRD')));
+    wp_die( );
+}
+add_action("wp_ajax_countMD", 'countMD_ajax_handler');
+add_action("wp_ajax_nopriv_countMD", 'countMD_ajax_handler');
+
+function countMD_ajax_handler()
+{
+    global $wpdb;
+    $siteRD = $_REQUEST["site"];
+    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE siteSEO = $siteRD LIMIT 1 ";
+    $items = $wpdb->get_results($querystr, OBJECT);
+    $wpdb->update(
+        'wp_pbn_redirect_statistic',
+        array( "countRD" => $items[0]->countRD+1 ), 
+        array( "siteSEO" => $_REQUEST["site"] )
+       );
+    echo json_encode(array("status"=>1, "message"=> 'kook'));
     wp_die( );
 }
