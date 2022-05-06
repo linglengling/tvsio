@@ -80,7 +80,105 @@ jQuery(document).ready(function() {
        
             });
           }
+ /////////////////////// lưu tên PBN vào danh sách ////////////////////////////////////
+          jQuery("#listPBN").validate({
+            submitHandler: 
+          
+            function() {
+                console.log("chạy lưu miền");
+                var postdata = "action=addPBN&param=crawl&" + jQuery("#listPBN").serialize();
+                jQuery.post(ajaxurl, postdata, function(response) {
+                    
+                    console.log(response);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1300);
+                });
+            }
+          }); 
+  ////////////////////// xóa PBN miền ////////////////////////////////////
+  jQuery(document).on("click", ".delPBN", function(){
+    var conf = confirm("Are you sure want to delete the campain?");
+    if (conf) { //if(true)
+    var row_id = jQuery(this).attr("data-id");
+    var postdata = "action=deletePBN&id=" + row_id;
+      jQuery.post(ajaxurl, postdata, function(response) {
+         
+        console.log(response);
+        setTimeout(function() {
+            location.reload();
+        }, 1300);
+            
 
+      });
+    }
+   });
+   /////////////////////// lưu tên CATE vào danh sách ////////////////////////////////////
+      jQuery("#listCATE").validate({
+        submitHandler: 
+
+        function() {
+            console.log("chạy lưu miền");
+            var postdata = "action=addCATE&param=crawl&" + jQuery("#listCATE").serialize();
+            jQuery.post(ajaxurl, postdata, function(response) {
+                
+                console.log(response);
+                setTimeout(function() {
+                    location.reload();
+                }, 1300);
+            });
+        }
+      }); 
+  ////////////////////// xóa CATE miền ////////////////////////////////////
+      jQuery(document).on("click", ".delCATE", function(){
+      var conf = confirm("Are you sure want to delete the campain?");
+      if (conf) { //if(true)
+      var row_id = jQuery(this).attr("data-id");
+      var postdata = "action=deleteCATE&id=" + row_id;
+      jQuery.post(ajaxurl, postdata, function(response) {
+
+      console.log(response);
+      setTimeout(function() {
+        location.reload();
+      }, 1300);
+        
+
+      });
+      }
+      }); 
+  /////////////////////// lưu tên CATE vào một site SEO ////////////////////////////////////
+      jQuery("#NHAPSEOCATE").validate({
+        submitHandler: 
+
+        function() {
+            console.log("chạy lưu miền");
+            var postdata = "action=NHAPSEOCATE&" + jQuery("#NHAPSEOCATE").serialize();
+            jQuery.post(ajaxurl, postdata, function(response) {
+              console.log(response);
+              var host = window.location.host;
+              setTimeout(function() {
+                window.open("http://"+host+"/wp-admin/options-general.php?page=RD-options&filter=SEO");
+              }, 1300);
+            });
+        }
+      }); 
+      /////////////////////// lưu tên CATE vào một site PBN////////////////////////////////////
+      jQuery("#NHAPPBNCATE").validate({
+        submitHandler: 
+
+        function() {
+            console.log("chạy lưu miền");
+            var postdata = "action=NHAPPBNCATE&" + jQuery("#NHAPPBNCATE").serialize();
+            jQuery.post(ajaxurl, postdata, function(response) {
+              console.log(response);
+              var host = window.location.host;
+                setTimeout(function() {
+                  window.open("http://"+host+"/wp-admin/options-general.php?page=RD-options&filter=PBN");
+                }, 1300);
+            });
+        }
+      }); 
+     
          /////////////////////////////////////////////////////////////////////////////////
  
 

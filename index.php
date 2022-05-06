@@ -1414,3 +1414,231 @@ function countMD_ajax_handler()
     echo json_encode(array("status"=>1, "message"=> 'kook'));
     wp_die( );
 }
+// lưu danh sách miền PBN vào cơ sở dữ liệu
+function allPBN_table() {
+    
+    return 'wp_pbn_site'; 
+}
+add_action("wp_ajax_addPBN", 'addPBN_ajax_handler');
+
+function addPBN_ajax_handler()
+{
+
+
+            global $wpdb;
+            $querystr  = "SELECT * FROM wp_pbn_site";
+            $datas = $wpdb->get_results($querystr, OBJECT);
+            $arr = explode(",", $_REQUEST['list'],);
+
+            var_dump($datas) ;
+            $ishave = false;
+            if($datas){
+                foreach ($arr as $item) {
+                    $item = trim($item );
+                    foreach($datas as $data){
+                        if ($item == $data->sitePBN){
+                            $ishave = true;
+                        }
+                    }
+                    if($ishave==false){
+                        $wpdb->insert(allPBN_table(), array(
+                            "sitePBN" => $item ,
+            
+                        )); 
+                    }
+                    $ishave = false;
+                }
+            }else{
+                foreach ($arr as $item) {
+                    $item = trim($item );
+                    $wpdb->insert(allPBN_table(), array(
+                        "sitePBN" => $item ,
+        
+                    )); 
+    
+                   
+                }
+            }
+            
+            
+            echo json_encode(array("status"=>1, "message"=>"Save PBN successfull"));
+            wp_die( );
+
+   
+
+
+
+}
+///////////// xóa miền PBN............................
+add_action("wp_ajax_deletePBN", 'deletePBN_ajax_handler');
+
+function deletePBN_ajax_handler()
+{
+
+    global $wpdb;
+
+    
+    $wpdb->delete('wp_pbn_site', array(
+        "id" => $_REQUEST['id']
+    ));
+
+
+    echo json_encode(array("status"=>1, "message"=>"delete domains successfull"));
+    wp_die( );
+}
+
+
+// lưu danh sách miền CATE vào cơ sở dữ liệu
+function allCATE_table() {
+    
+    return 'wp_site_category'; 
+}
+add_action("wp_ajax_addCATE", 'addCATE_ajax_handler');
+
+function addCATE_ajax_handler()
+{
+
+
+            global $wpdb;
+            $querystr  = "SELECT * FROM wp_site_category";
+            $datas = $wpdb->get_results($querystr, OBJECT);
+            $arr = explode(",", $_REQUEST['list'],);
+
+            var_dump($datas) ;
+            $ishave = false;
+            if($datas){
+                foreach ($arr as $item) {
+                    $item = trim($item );
+                    foreach($datas as $data){
+                        if ($item == $data->category){
+                            $ishave = true;
+                        }
+                    }
+                    if($ishave==false){
+                        $wpdb->insert(allCATE_table(), array(
+                            "category" => $item ,
+            
+                        )); 
+                    }
+                    $ishave = false;
+                }
+            }else{
+                foreach ($arr as $item) {
+                    $item = trim($item );
+                    $wpdb->insert(allCATE_table(), array(
+                        "category" => $item ,
+        
+                    )); 
+    
+                   
+                }
+            }
+            
+            
+            echo json_encode(array("status"=>1, "message"=>"Save CATE successfull"));
+            wp_die( );
+
+   
+
+
+
+}
+///////////// xóa miền CATE............................
+add_action("wp_ajax_deleteCATE", 'deleteCATE_ajax_handler');
+
+function deleteCATE_ajax_handler()
+{
+
+    global $wpdb;
+
+    
+    $wpdb->delete('wp_site_category', array(
+        "id" => $_REQUEST['id']
+    ));
+
+
+    echo json_encode(array("status"=>1, "message"=>"delete domains successfull"));
+    wp_die( );
+}
+
+
+/////////////////////// lưu tên CATE vào một site SEO ////////////////////////////////////
+add_action("wp_ajax_NHAPSEOCATE", 'NHAPSEOCATE_ajax_handler');
+
+
+
+function NHAPSEOCATE_ajax_handler()
+{
+
+
+            global $wpdb;
+            $id =  $_REQUEST['custId'];
+            $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE id = $id";
+            $datas = $wpdb->get_results($querystr, OBJECT);
+           
+
+           
+            if($datas[0]->category!=""){
+                $wpdb->update(
+                    'wp_pbn_redirect_statistic',
+                    array( "category" => $datas[0]->category.",". $_REQUEST['CATEs'] ), 
+                    array( "id" => $id)
+                   );
+            }else{
+                $wpdb->update(
+                    'wp_pbn_redirect_statistic',
+                    array( "category" => $datas[0]->category. $_REQUEST['CATEs'] ), 
+                    array( "id" => $id)
+                   );
+            }
+            
+            
+            echo json_encode(array("status"=>1, "message"=>$datas[0]->siteSEO));
+            wp_die( );
+
+   
+
+
+
+}
+
+/////////////////////// lưu tên CATE vào một site PBN ////////////////////////////////////
+add_action("wp_ajax_NHAPPBNCATE", 'NHAPPBNCATE_ajax_handler');
+
+
+
+function NHAPPBNCATE_ajax_handler()
+{
+
+
+            global $wpdb;
+            $id =  $_REQUEST['custId'];
+            $querystr  = "SELECT * FROM wp_pbn_site WHERE id = $id";
+            $datas = $wpdb->get_results($querystr, OBJECT);
+           
+
+          
+          
+            if($datas[0]->category!=""){
+                $wpdb->update(
+                    'wp_pbn_site',
+                    array( "category" => $datas[0]->category.",". $_REQUEST['CATEs'] ), 
+                    array( "id" => $id)
+                   );
+            }else{
+                $wpdb->update(
+                    'wp_pbn_site',
+                    array( "category" => $datas[0]->category. $_REQUEST['CATEs'] ), 
+                    array( "id" => $id)
+                   );
+            }
+            
+            
+            echo json_encode(array("status"=>1, "message"=>$datas[0]->sitePBN));
+            wp_die( );
+
+   
+
+
+
+}
