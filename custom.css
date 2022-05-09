@@ -37,3 +37,14 @@
   p a{
     text-decoration: none; 
   }
+  .modal-fullscreen{
+    width: 200% !important;
+    height: 200% !important; 
+    margin: 0;
+    top: 0;
+    left: 50% !important;
+  }
+  .img-modal{
+    width:100%;
+    height:100%;
+  }

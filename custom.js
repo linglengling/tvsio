@@ -1,7 +1,13 @@
 // code ajax post bằng action hook wp-ajax của wordpress 
 jQuery(document).ready(function() {
 ///////////////////////////////////////////////////////////////
-   
+function checkcojqueychua(){
+  var postdata = "action=checkcojqueychua";
+  jQuery.post(ajaxurl, postdata, function(response) {
+     
+  });
+  }
+  checkcojqueychua();
     
      /////////////////////// lưu tên miền vào danh sách ////////////////////////////////////
     jQuery("#listDM").validate({
@@ -157,7 +163,7 @@ jQuery(document).ready(function() {
               console.log(response);
               var host = window.location.host;
               setTimeout(function() {
-                window.open("http://"+host+"/wp-admin/options-general.php?page=RD-options&filter=SEO");
+                window.location.href = "http://"+host+"/wp-admin/options-general.php?page=RD-options&filter=SEO";
               }, 1300);
             });
         }
@@ -173,7 +179,7 @@ jQuery(document).ready(function() {
               console.log(response);
               var host = window.location.host;
                 setTimeout(function() {
-                  window.open("http://"+host+"/wp-admin/options-general.php?page=RD-options&filter=PBN");
+                  window.location.href = "http://"+host+"/wp-admin/options-general.php?page=RD-options&filter=PBN";
                 }, 1300);
             });
         }

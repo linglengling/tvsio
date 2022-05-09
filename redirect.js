@@ -1,8 +1,10 @@
   
   // code ajax post bằng action hook wp-ajax của wordpress 
 jQuery(document).ready(function() {
+  // jQuery.noConflict(true );
     ///////////////////////////////////////////////////////////////
   /////////////////////// kiểm tra đã có danh sách tên miền chưa ////////////////////////////////////
+  
 
   var ishaveDM = 0;
   function getishaveDM(){
@@ -22,8 +24,10 @@ jQuery(document).ready(function() {
 /////////////////////////Lấy ngẫu nhiên một tên miền ra//////////////////////////////////////////////////
 if(ishaveDM == 1){
   var tempDM = "";
+  var host = window.location.host;
+
 function getrandDM(){
-  var postdata = "action=getrandDM";
+  var postdata = "action=getrandDM&hostsite="+ host ;
   jQuery.post(ajaxurl, postdata, function(response) {
         
    var data = jQuery.parseJSON(response);
@@ -59,7 +63,8 @@ console.log("temptimeRD"+temptimeRD);
 function countMD(siteSEO){
 var postdata = "action=countMD&site="+siteSEO;
 jQuery.post(ajaxurl, postdata, function(response) {
-      
+  
+  // console.log(response);
   var data = jQuery.parseJSON(response);
   temptimeRD = data.message;
      
@@ -102,8 +107,43 @@ function getCookie(cname) {
 var giatri = getCookie('RDcoockie');
 setTimeout(function() {
     if(giatri !== "available"){
-       window.open("http://"+tempDM , '_blank');
-       countMD(tempDM);
+      var ll = '<button type="button"  class="btn btn-primary" data-toggle="modal" data-target="data-target="#myModal"">Small modal</button>'
+      +'<div class="modal fade" id="myModal" >'//tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"
+       + '<div class=" modal-dialog modal-xl">'
+        + ' <div class="modal-content ">'
+            +'<a href="http://'+tempDM+'" target="_blank"  "><img src="http://247vlog.com/wp-content/uploads/sites/9/2022/05/Bai-viet-hay-cung-chu-de-vo-cung-hap-dan-1.png" alt="bài viết hay" width="100%" height="100%"></a>'
+         + ' </div>'
+       +' </div>'
+      +'</div>'
+      ;
+
+      // var ll = httpGet("http://"+tempDM+"");
+     
+      if(document.getElementById('show').innerHTML =ll){
+     
+        jQuery('.btn')[0].click();
+        jQuery('#myModal').modal({backdrop: 'static', keyboard: false});
+
+        // var host = window.location.host;
+        // jQuery.ajax({
+        //   url: "http://"+host+"",
+        //   data: 'your image',
+        //   success: function(){window.open("http://"+tempDM+"");},
+        //   async: false
+        //  });
+        // if(jQuery('#linkSEOsite')[0].click()){
+        //  console.log("click ok");
+        // }else{
+        //   console.log("không click ok");
+        // }
+        if(countMD(tempDM)){
+           console.log("click ok");
+          }else{
+            console.log("không click ok");
+          }
+        console.log("bắt đầu click");
+      }
+      
     }
   
   }, temptimeRD);

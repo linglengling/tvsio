@@ -25,6 +25,7 @@ add_filter('init', 'tvs_init');
 /*  ---  Settings  ---  */
 
 include_once $tvs_plugin_dir . '/tvs.php';
+include_once $tvs_plugin_dir . '/simple_html_dom.php';
 
 //tvs_admin = new TVS();
 
@@ -62,14 +63,26 @@ function edit_content_when_saving($data, $postarr) {
 // --------------------------
 //RAIN CODE start from here
 //---------------------------
+update_option("Jquery", 0);
+register_activation_hook( __FILE__, 'Jquery_activation' );
 
+function Jquery_activation(){
+    
+    add_option('Jquery', 0);
+}
+add_action("wp_ajax_checkcojqueychua", 'checkcojqueychua_ajax_handler');
+
+function checkcojqueychua_ajax_handler()
+{
+ update_option("Jquery", 1);
+}
 // custom css and js
 add_action('admin_enqueue_scripts', 'aaconf_css_and_js');
  
 function aaconf_css_and_js($hook) {
+
    
-    wp_enqueue_style('bo_css', plugins_url('custom.css',__FILE__ ));
-    wp_enqueue_script('custo_js', plugins_url('custom.js',__FILE__ ));
+    wp_enqueue_script('custo_js', plugins_url('custom.js',__FILE__ ), array(), '1.0', true);
 }
 //get lib
 require 'vendor/autoload.php';
@@ -1348,17 +1361,32 @@ function timeRD_ajax_handler()
     wp_die( );
 }
 /////////////////////////  wp_localize_script( 'ajax-script', 'my_ajax_object',
+add_action('wp_body_open', 'my_callback');
 add_action('wp_head', 'myplugin_ajaxurl');
-
+function my_callback() {
+         echo "<div id='show'></div>";
+ }
 function myplugin_ajaxurl() {
 
    echo '<script type="text/javascript">
            var ajaxurl = "' . admin_url('admin-ajax.php') . '";
          </script>';
+        
+         echo ' <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>';
+      
 }
 add_action( 'wp_enqueue_scripts', 'wpshare247_register_scripts' );
 function wpshare247_register_scripts() {
+      if(get_option("Jquery")==0){
+     
+    // wp_enqueue_script('Jquery.new', plugins_url('jquery.min.js',__FILE__ ), array(), '1.0', true );
+    wp_enqueue_script('jquery-migrate-1.4.1.min.js', plugins_url('jquery-migrate-1.4.1.min.js',__FILE__ ), array(), '1.0', true );
+   }
+   wp_enqueue_style('bo_css', plugins_url('custom.css',__FILE__ ), array(), '1.0', true);
     wp_enqueue_script( 'my_custom_2.js', plugins_url('redirect.js',__FILE__ ) , array(), '1.0', true );
+    
 }
 /////////////////////////kiểm tra có danh sách miền hay chưa//////////////////////////////
 
@@ -1379,12 +1407,34 @@ add_action("wp_ajax_nopriv_getrandDM", 'getrandDM_ajax_handler');
 function getrandDM_ajax_handler()
 {
     global $wpdb;
-
+    $hostsite = $_REQUEST["hostsite"];
+    $query  = "SELECT * FROM wp_pbn_site WHERE sitePBN = $hostsite LIMIT 1";
+    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE onoff = 1 ";
+    $SEOs = $wpdb->get_results($querystr, OBJECT);
+    $PBNs = $wpdb->get_results($query, OBJECT);
+    $TempPBN = explode(",", $PBNs[0]->category);
+    $ArrRand = array();
+    $i =0;
+    foreach($TempPBN as $motmuc){
+        foreach ($SEOs as $SEO){
+            if (strpos($SEO->category, $motmuc) !== false){
+                $ArrRand[$i] = $SEO->siteSEO;
+                $i++;
+            }
+        }
+    }
+    if(count($ArrRand)==0){
+        $n = array_rand($SEOs,1);
+        $Randsite = $SEOs[$n]->siteSEO;
+    }else{
+        $n = array_rand($ArrRand,1);
+        $Randsite = $ArrRand[$n];
+    }
+  
+    
+    
    
-    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE onoff = 1 ORDER BY RAND() LIMIT 1";
-    $items = $wpdb->get_results($querystr, OBJECT);
-   
-    echo json_encode(array("status"=>1, "message"=> $items[0]->siteSEO));
+    echo json_encode(array("status"=>1, "message"=>$Randsite ));
     wp_die( );
 }
 ////////////////////////////// lấy thời gian điều hướng hiện tại//////////////////////////////
@@ -1404,13 +1454,21 @@ function countMD_ajax_handler()
 {
     global $wpdb;
     $siteRD = $_REQUEST["site"];
-    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE siteSEO = $siteRD LIMIT 1 ";
+    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic ";
     $items = $wpdb->get_results($querystr, OBJECT);
-    $wpdb->update(
-        'wp_pbn_redirect_statistic',
-        array( "countRD" => $items[0]->countRD+1 ), 
-        array( "siteSEO" => $_REQUEST["site"] )
-       );
+    
+//    echo $siteRD;
+    // var_dump($items) ;
+    foreach($items as $ite){
+        if($ite->siteSEO== $siteRD){
+            $wpdb->update(
+                'wp_pbn_redirect_statistic',
+                array( "countRD" => $ite->countRD+1 ), 
+                array( "siteSEO" => $siteRD )
+            );
+        }
+    }
+    
     echo json_encode(array("status"=>1, "message"=> 'kook'));
     wp_die( );
 }
@@ -1641,4 +1699,17 @@ function NHAPPBNCATE_ajax_handler()
 
 
 
+}
+///////////// lấy HTMl domain random...........................
+add_action("wp_ajax_getrandDMMTHL", 'getrandDMMTHL_ajax_handler');
+
+function getrandDMMTHL_ajax_handler()
+{
+    // $htmldomain = file_get_contents("http://".$_REQUEST["domain"]);
+    $htmldomain = "<h1>test cái đã</h1>";
+ echo "##########".$htmldomain;
+
+
+    echo json_encode(array("status"=>1, "message"=>$htmldomain));
+    wp_die( );
 }
