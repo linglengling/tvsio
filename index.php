@@ -1119,7 +1119,9 @@ add_action('sendmail_cron', 'sendmail_cron_implement');
 //the event function
 
 function sendmail_cron_implement(){
-  return;
+ 
+    
+    
     global $wpdb;
 
     $querystr = "SELECT * FROM wp_blogs";
