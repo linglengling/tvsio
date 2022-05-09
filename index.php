@@ -1395,9 +1395,11 @@ add_action("wp_ajax_nopriv_getishaveDM", 'getishaveDM_ajax_handler');
 
 function getishaveDM_ajax_handler()
 {
-
-
-    echo json_encode(array("status"=>1, "message"=> get_option('Is_has_DM')));
+    global $wpdb;
+    $querystr  = "SELECT * FROM wp_options WHERE option_name = 'Is_has_DM' ";
+    $Is_has_DM = $wpdb->get_results($querystr, OBJECT);
+    
+    echo json_encode(array("status"=>1, "message"=> $Is_has_DM[0]->option_value));
     wp_die( );
 }
 //////////////////////////////lấy một miền ngẫu nhiên có trạng thái bật//////////////////////////////
