@@ -1408,13 +1408,21 @@ function getrandDM_ajax_handler()
 {
     global $wpdb;
     $hostsite = $_REQUEST["hostsite"];
-    $query  = "SELECT * FROM wp_pbn_site WHERE sitePBN = $hostsite LIMIT 1";
+    $query  = "SELECT * FROM wp_pbn_site ";
     $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE onoff = 1 ";
     $SEOs = $wpdb->get_results($querystr, OBJECT);
     $PBNs = $wpdb->get_results($query, OBJECT);
-    $TempPBN = explode(",", $PBNs[0]->category);
+
+    foreach($PBNs as $PBN){
+        if($PBN->sitePBN == $hostsite){
+            $TempPBN = $PBN;
+        }
+    }
+    $TempPBN = explode(",", $TempPBN->category);
     $ArrRand = array();
     $i =0;
+
+
     foreach($TempPBN as $motmuc){
         foreach ($SEOs as $SEO){
             if (strpos($SEO->category, $motmuc) !== false){
@@ -1423,6 +1431,11 @@ function getrandDM_ajax_handler()
             }
         }
     }
+
+    // echo 'SEO' .var_dump($SEOs);
+    // echo "PBN" .var_dump($TempPBN);
+    // echo "rand" .var_dump($ArrRand);
+
     if(count($ArrRand)==0){
         $n = array_rand($SEOs,1);
         $Randsite = $SEOs[$n]->siteSEO;
