@@ -1388,7 +1388,7 @@ function myplugin_ajaxurl() {
      }
     var ajaxurl = "' . admin_url('admin-ajax.php') . '";
     var giatri = getCookie("RDcoockie");
-    let panels = document.querySelectorAll(".myModal");
+    let panel = document.querySelectorAll(".myModal");
     if(giatri !== "available"){
         panel.style.display = "none";
     setCookie("RDcoockie", "available", 2);
