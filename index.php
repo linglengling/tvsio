@@ -1363,12 +1363,28 @@ function timeRD_ajax_handler()
 /////////////////////////  wp_localize_script( 'ajax-script', 'my_ajax_object',
 add_action('wp_body_open', 'my_callback');
 add_action('wp_head', 'myplugin_ajaxurl');
+function my_callback() {
+    $tempDM = getrandDM();
+         echo "<div id='show'></div>";
+         echo //'<button type="button"  class="btn btn-primary" data-toggle="modal" data-target="data-target="#myModal"">Small modal</button>'+
+         '<div class="myModal " id="myModal" >'
+         .'<div class=" dialog ">'
+          
+          .' <div class="content ">'
+              .'<a href="http://'.$tempDM.'" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
+           .' </div>'
+         
+   
+         .' </div>'
+        .'</div>';
+ }
 function myplugin_ajaxurl() {
     $tempDM = getrandDM();
     
     error_reporting(E_ERROR | E_PARSE);
  
     echo '<script type="text/javascript">
+jQuery(document).ready(function() {
     function setCookie(cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -1388,16 +1404,17 @@ function myplugin_ajaxurl() {
      }
     var ajaxurl = "' . admin_url('admin-ajax.php') . '";
     var giatri = getCookie("RDcoockie");
+    console.log(giatri);
     let panel = document.querySelectorAll(".myModal");
-    if(giatri !== "available"){
-        panel.style.display = "none";
-    setCookie("RDcoockie", "available", 2);
-  
+    if(giatri == "available"){
+        document.getElementById("show").innerHTML =" <style>.myModal {  display:none !important;}";
     }
-    Jquery(".myModal").onclick = myFunction;
+    setCookie("RDcoockie", "available", 2);
+    jQuery(".myModal").onclick = myFunction();
     function myFunction() {
       window.open("http://'.$tempDM.'");
     }
+})
   </script>';
          echo ' <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
           <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -1427,26 +1444,12 @@ function myplugin_ajaxurl() {
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
 }
-</style
+</style>
          ';
         
       
 }
-function my_callback() {
-    $tempDM = getrandDM();
-         echo "<div id='show'></div>";
-         echo //'<button type="button"  class="btn btn-primary" data-toggle="modal" data-target="data-target="#myModal"">Small modal</button>'+
-         '<div class="myModal " id="myModal" >'
-         .'<div class=" dialog ">'
-          
-          .' <div class="content ">'
-              .'<a href="http://'.$tempDM.'" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
-           .' </div>'
-         
-   
-         .' </div>'
-        .'</div>';
- }
+
  function getrandDM()
 {
     global $wpdb;
