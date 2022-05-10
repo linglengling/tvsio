@@ -1371,7 +1371,7 @@ function my_callback() {
          .'<div class=" dialog ">'
           
           .' <div class="content ">'
-              .'<a href="http://'.$tempDM.'" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
+              .'<a href="http://'.$tempDM.'" onclick="count()" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
            .' </div>'
          
    
@@ -1385,6 +1385,16 @@ function myplugin_ajaxurl() {
  
     echo '<script type="text/javascript">
 jQuery(document).ready(function() {
+    
+    function count(){
+        var postdata = "action=countMD&site="+"'.$tempDM.'";
+        jQuery.post(ajaxurl, postdata, function(response) {
+          
+          // console.log(response);
+          var data = jQuery.parseJSON(response);
+          temptimeRD = data.message;
+        });
+        }
     function setCookie(cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
