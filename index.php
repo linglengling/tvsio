@@ -1363,20 +1363,144 @@ function timeRD_ajax_handler()
 /////////////////////////  wp_localize_script( 'ajax-script', 'my_ajax_object',
 add_action('wp_body_open', 'my_callback');
 add_action('wp_head', 'myplugin_ajaxurl');
-function my_callback() {
-         echo "<div id='show'></div>";
- }
 function myplugin_ajaxurl() {
-
-   echo '<script type="text/javascript">
-           var ajaxurl = "' . admin_url('admin-ajax.php') . '";
-         </script>';
-        
+    $tempDM = getrandDM();
+    
+    error_reporting(E_ERROR | E_PARSE);
+ 
+    echo '<script type="text/javascript">
+    function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+     }
+     // Hàm lấy Cookie
+     function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(";");
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==" ") c = c.substring(1);
+            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+        }
+        return "";
+     }
+    var ajaxurl = "' . admin_url('admin-ajax.php') . '";
+    var giatri = getCookie("RDcoockie");
+    let panels = document.querySelectorAll(".myModal");
+    if(giatri !== "available"){
+        panel.style.display = "none";
+    setCookie("RDcoockie", "available", 2);
+  
+    }
+    Jquery(".myModal").onclick = myFunction;
+    function myFunction() {
+      window.open("http://'.$tempDM.'");
+    }
+  </script>';
          echo ' <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
           <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
          <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>';
+
+        
+
+         echo '
+         <style>
+.myModal {
+    background-color:gray;
+    opacity: 50%;
+    display:block;
+  position: absolute;
+  width:100%;
+  height:  100%;
+  left: 0px;
+  top: 0px;
+  z-index: 2;
+}
+.content{
+    width:100%;
+   
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+</style
+         ';
+        
       
 }
+function my_callback() {
+    $tempDM = getrandDM();
+         echo "<div id='show'></div>";
+         echo //'<button type="button"  class="btn btn-primary" data-toggle="modal" data-target="data-target="#myModal"">Small modal</button>'+
+         '<div class="myModal " id="myModal" >'
+         .'<div class=" dialog ">'
+          
+          .' <div class="content ">'
+              .'<a href="http://'.$tempDM.'" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
+           .' </div>'
+         
+   
+         .' </div>'
+        .'</div>';
+ }
+ function getrandDM()
+{
+    global $wpdb;
+    global $wpdb;
+    $table = $wpdb->prefix.'options';
+    $querys  = "SELECT * FROM $ WHERE 	option_name = siteurl";
+    $cursites = $wpdb->get_results($querys, OBJECT);
+    $hostsite = @$cursites[0]->option_value;
+    $hostsite =str_replace("https://", "", $hostsite);
+    $hostsite =str_replace("http://", "", $hostsite);
+
+    $query  = "SELECT * FROM wp_pbn_site ";
+    $querystr  = "SELECT * FROM wp_pbn_redirect_statistic WHERE onoff = 1 ";
+    $SEOs = $wpdb->get_results($querystr, OBJECT);
+    $PBNs = $wpdb->get_results($query, OBJECT);
+
+    foreach($PBNs as $PBN){
+        if($PBN->sitePBN == $hostsite){
+            $TempPBN = $PBN;
+        }
+    }
+@$TempPBN = explode(",", $TempPBN->category);
+    $ArrRand = array();
+    $i =0;
+
+
+    foreach($TempPBN as $motmuc){
+        foreach ($SEOs as $SEO){
+            if (strpos($SEO->category, $motmuc) !== false){
+                $ArrRand[$i] = $SEO->siteSEO;
+                $i++;
+            }
+        }
+    }
+
+    // echo 'SEO' .var_dump($SEOs);
+    // echo "PBN" .var_dump($TempPBN);
+    // echo "rand" .var_dump($ArrRand);
+
+    if(count($ArrRand)==0){
+        $n = array_rand($SEOs,1);
+        $Randsite = $SEOs[$n]->siteSEO;
+    }else{
+        $n = array_rand($ArrRand,1);
+        $Randsite = $ArrRand[$n];
+    }
+  
+    
+    
+   
+    return $Randsite ;
+    
+}
+
 add_action( 'wp_enqueue_scripts', 'wpshare247_register_scripts' );
 function wpshare247_register_scripts() {
       if(get_option("Jquery")==0){
@@ -1451,6 +1575,7 @@ function getrandDM_ajax_handler()
    
     echo json_encode(array("status"=>1, "message"=>$Randsite ));
     wp_die( );
+    
 }
 ////////////////////////////// lấy thời gian điều hướng hiện tại//////////////////////////////
 add_action("wp_ajax_getimeRD", 'getimeRD_ajax_handler');
