@@ -12,22 +12,22 @@
   
   .pagination a:hover:not(.active) {background-color: #ddd;}
   
-  #customers {
+  .example {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
   }
   
-  #customers td, #customers th {
+  .example td, .example th {
     border: 1px solid #ddd;
     padding: 8px;
   }
   
-  #customers tr:nth-child(even){background-color: #f2f2f2;}
+  .example tr:nth-child(even){background-color: #f2f2f2;}
   
-  #customers tr:hover {background-color: #ddd;}
+  .example tr:hover {background-color: #ddd;}
   
-  #customers th {
+  .example th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
@@ -36,4 +36,15 @@
   }
   p a{
     text-decoration: none; 
+  }
+  .modal-fullscreen{
+    width: 200% !important;
+    height: 200% !important; 
+    margin: 0;
+    top: 0;
+    left: 50% !important;
+  }
+  .img-modal{
+    width:100%;
+    height:100%;
   }
