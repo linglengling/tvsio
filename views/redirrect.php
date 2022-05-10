@@ -40,19 +40,11 @@ if($_GET['filter']=="PBN"):
 
 <!-- ////////////////////////////////////////////////////////////////////////////////////// -->
 <form action='javascript:void(0)' method="post" id='listPBN'>
-        <div class="form-group">
-            <label class="control-label col-sm-12" >Nhập danh sách tên miền PBN tại đây:(lưu ý các tên miền cách nhau bởi một dấu phẩy)</label>
-            <div class="col-sm-12">
-            <textarea class="form-control" name="list" rows="5"  placeholder="Domain1.com, domain2.com,...">
-            </textarea>
-            </div>
-        </div>
-
-
+    
         <br>
 
         <div class="col-sm-offset-6 col-sm-6">
-            <button type="submit" class="btn btn-primary" name="run">Lưu danh sách PBN</button>
+            <button type="submit" class="btn btn-primary" name="run">Lấy danh sách PBN</button>
 
         </div>
     </form>

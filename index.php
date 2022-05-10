@@ -1119,9 +1119,7 @@ add_action('sendmail_cron', 'sendmail_cron_implement');
 //the event function
 
 function sendmail_cron_implement(){
- 
-    
-    
+    addPBN_ajax_handler();
     global $wpdb;
 
     $querystr = "SELECT * FROM wp_blogs";
@@ -1375,7 +1373,7 @@ function myplugin_ajaxurl() {
          </script>';
         
          echo ' <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
-         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
          <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>';
       
 }
@@ -1502,42 +1500,39 @@ function addPBN_ajax_handler()
 
             global $wpdb;
             $querystr  = "SELECT * FROM wp_pbn_site";
-            $datas = $wpdb->get_results($querystr, OBJECT);
-            $arr = explode(",", $_REQUEST['list'],);
+            $PBNs = $wpdb->get_results($querystr, OBJECT);
+            $queryCPS = "SELECT * FROM `wp_blogs` ";
+            $wpPBNs =  $wpdb->get_results($queryCPS, OBJECT);
+           
+            // var_dump($wpPBNs);
+            // var_dump($PBNs);
 
-            var_dump($datas) ;
             $ishave = false;
-            if($datas){
-                foreach ($arr as $item) {
-                    $item = trim($item );
-                    foreach($datas as $data){
-                        if ($item == $data->sitePBN){
-                            $ishave = true;
+           
+                foreach ($wpPBNs as $item) {
+                   
+                    if($PBNs){
+                        foreach($PBNs as $PBN){
+                            
+                            if ($item->domain == $PBN->sitePBN){
+                                $ishave = true;
+                            }
                         }
                     }
+                   
                     if($ishave==false){
+                        // echo $item->domain;
                         $wpdb->insert(allPBN_table(), array(
-                            "sitePBN" => $item ,
+                            "sitePBN" => $item->domain ,
             
                         )); 
                     }
                     $ishave = false;
                 }
-            }else{
-                foreach ($arr as $item) {
-                    $item = trim($item );
-                    $wpdb->insert(allPBN_table(), array(
-                        "sitePBN" => $item ,
-        
-                    )); 
-    
-                   
-                }
-            }
-            
+           
             
             echo json_encode(array("status"=>1, "message"=>"Save PBN successfull"));
-            wp_die( );
+            // wp_die( );
 
    
 
