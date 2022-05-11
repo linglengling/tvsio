@@ -156,7 +156,7 @@ setTimeout(function() {
   
   }, temptimeRD);
 
-  setCookie("RDcoockie", "available", 2);
+  // setCookie("RDcoockie", "available", 2);
  }
 
    }, 3000);

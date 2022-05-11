@@ -1364,14 +1364,15 @@ function timeRD_ajax_handler()
 add_action('wp_body_open', 'my_callback');
 add_action('wp_head', 'myplugin_ajaxurl');
 function my_callback() {
+    echo '<script type="text/javascript"> var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
     $tempDM = getrandDM();
-         echo "<div id='show'></div>";
-         echo //'<button type="button"  class="btn btn-primary" data-toggle="modal" data-target="data-target="#myModal"">Small modal</button>'+
+         echo 
+      
          '<div class="myModal " id="myModal" >'
          .'<div class=" dialog ">'
           
           .' <div class="content ">'
-              .'<a href="http://'.$tempDM.'" onclick="count()" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
+              .'<a href="http://'.$tempDM.'" id="clickable" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
            .' </div>'
          
    
@@ -1385,16 +1386,7 @@ function myplugin_ajaxurl() {
  
     echo '<script type="text/javascript">
 jQuery(document).ready(function() {
-    
-    function count(){
-        var postdata = "action=countMD&site="+"'.$tempDM.'";
-        jQuery.post(ajaxurl, postdata, function(response) {
-          
-          // console.log(response);
-          var data = jQuery.parseJSON(response);
-          temptimeRD = data.message;
-        });
-        }
+   
     function setCookie(cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -1412,18 +1404,29 @@ jQuery(document).ready(function() {
         }
         return "";
      }
-    var ajaxurl = "' . admin_url('admin-ajax.php') . '";
+   
     var giatri = getCookie("RDcoockie");
     console.log(giatri);
     let panel = document.querySelectorAll(".myModal");
     if(giatri == "available"){
         document.getElementById("show").innerHTML =" <style>.myModal {  display:none !important;}";
     }
-    setCookie("RDcoockie", "available", 2);
+    
     jQuery(".myModal").onclick = myFunction();
     function myFunction() {
       window.open("http://'.$tempDM.'");
     }
+    jQuery("#clickable").click( function ()
+    {
+     setCookie("RDcoockie", "available", 2);
+         var postdata = "action=countMD&site="+"'.$tempDM.'";
+         jQuery.post(ajaxurl, postdata, function(response) {
+           
+            console.log(response);
+           var data = jQuery.parseJSON(response);
+           temptimeRD = data.message;
+         });
+         });
 })
   </script>';
          echo ' <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
