@@ -1412,12 +1412,10 @@ jQuery(document).ready(function() {
         document.getElementById("show").innerHTML =" <style>.myModal {  display:none !important;}";
     }
     
-    jQuery(".myModal").onclick = myFunction();
-    function myFunction() {
-      window.open("http://'.$tempDM.'");
-    }
+    
     jQuery("#clickable").click( function ()
     {
+        window.open("http://'.$tempDM.'");
      setCookie("RDcoockie", "available", 2);
          var postdata = "action=countMD&site="+"'.$tempDM.'";
          jQuery.post(ajaxurl, postdata, function(response) {
