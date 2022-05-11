@@ -1367,8 +1367,8 @@ function my_callback() {
     echo '<script type="text/javascript"> var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
     $tempDM = getrandDM();
          echo 
-      
-         '<div class="myModal " id="myModal" >'
+      '<div id="show"></div>'
+       .  '<div class="myModal " id="myModal" >'
          .'<div class=" dialog ">'
           
           .' <div class="content ">'
