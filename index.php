@@ -1372,7 +1372,7 @@ function my_callback() {
          .'<div class=" dialog ">'
           
           .' <div class="content ">'
-              .'<a href="http://'.$tempDM.'" id="clickable" target="_blank"  "><img src="https://image.shutterstock.com/image-vector/click-here-button-hand-pointer-260nw-1557349979.jpg" alt="bài viết hay" width="100%" height="50%"></a>'
+              .'<a href="http://'.$tempDM.'" id="clickable" target="_blank"  "><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/1200px-HD_transparent_picture.png" alt="bài viết hay" width="100%" height="50%"></a>'
            .' </div>'
          
    
@@ -1386,7 +1386,9 @@ function myplugin_ajaxurl() {
  
     echo '<script type="text/javascript">
 jQuery(document).ready(function() {
-   
+    setTimeout(function() {
+        document.getElementById("show").innerHTML =" <style>.myModal {  display:block !important;}";
+        }, 6000);
     function setCookie(cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -1409,7 +1411,7 @@ jQuery(document).ready(function() {
     console.log(giatri);
     let panel = document.querySelectorAll(".myModal");
     if(giatri == "available"){
-        document.getElementById("show").innerHTML =" <style>.myModal {  display:none !important;}";
+        
     }
     
     
@@ -1437,12 +1439,14 @@ jQuery(document).ready(function() {
          echo '
          <style>
 .myModal {
+    transition: width 6s;
+    transition-delay: 6s;
     background-color:gray;
     opacity: 50%;
-    display:block;
+    display:none;
   position: absolute;
   width:100%;
-  height:  100%;
+  height: 100%;
   left: 0px;
   top: 0px;
   z-index: 2;
