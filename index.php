@@ -1445,8 +1445,8 @@ jQuery(document).ready(function() {
     opacity: 50%;
     display:none;
   position: absolute;
-  width:100%;
-  height: 500%;
+  width:600%;
+  height: 600%;
   left: 0px;
   top: 0px;
   z-index: 2;
