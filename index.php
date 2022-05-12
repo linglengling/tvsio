@@ -1415,6 +1415,7 @@ jQuery(document).ready(function() {
     
     jQuery("#clickable").click( function ()
     {
+        document.getElementById("show").innerHTML =" <style>.myModal {  display:none !important;}";
         window.open("http://'.$tempDM.'");
      setCookie("RDcoockie", "available", 2);
          var postdata = "action=countMD&site="+"'.$tempDM.'";
