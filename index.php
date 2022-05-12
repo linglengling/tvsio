@@ -1446,7 +1446,7 @@ jQuery(document).ready(function() {
     display:none;
   position: absolute;
   width:100%;
-  height: 100%;
+  height: 500%;
   left: 0px;
   top: 0px;
   z-index: 2;
